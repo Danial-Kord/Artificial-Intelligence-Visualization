@@ -5,30 +5,35 @@ from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
 import numpy as np
 import GraphSystem
 
-CIRCLE_RADIUS = 1
+scale = 0.75
 
+LEFT_X_AREA = -4
+RIGHT_X_AREA = 4
 
 class graph_search(MovingCameraScene):
     def construct(self):
         # grid = ScreenGrid()
         camera = self.camera_frame
-        
-        # self.play(camera.set_width,12)
+        # camera.set_width(12)
 
-        path = input("enter path : ")
-        graph = GraphSystem.Graph(CIRCLE_RADIUS)
+        # path = input("enter path : ")
+        path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\input.txt"
+        graph = GraphSystem.Graph(scale)
         graph.read_from_file(path)
         root = graph.root
+        radius = graph.root.visual_shape.radius
 
         current_y_point = 3
-        delta_x = 3
-        root.set_pos(3,current_y_point)
-        current_y_point-=CIRCLE_RADIUS*2 + 2
-        start_x_point = root.x - delta_x
+        delta_x = 0
+        if graph.branching_factors[1] > 1:
+            delta_x = (RIGHT_X_AREA - LEFT_X_AREA) / (graph.branching_factors[1]-1)
+        root.set_pos(0,current_y_point)
+        current_y_point-=scale*2 + scale
+        start_x_point = LEFT_X_AREA
         for i in graph.map[root]:
             i.set_pos(start_x_point,current_y_point)
-            self.add(i.graphics,root.graphics,Arrow([root.x,root.y,0],[start_x_point,i.y,0],stroke_width=1,buff=i.visual_shape.radius * i.scale))
-            start_x_point += CIRCLE_RADIUS*2
+            self.add(i.graphics,root.graphics,Arrow([root.x,root.y,0],[start_x_point,i.y,0],stroke_width=1,buff= i.scale))
+            start_x_point += delta_x
         
         # c1 = Circle()
         # c1.radius = CIRCLE_RADIUS
