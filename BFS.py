@@ -20,20 +20,21 @@ class graph_search(MovingCameraScene):
         path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\input.txt"
         graph = GraphSystem.Graph(scale)
         graph.read_from_file(path)
-        root = graph.root
-        radius = graph.root.visual_shape.radius
+        graph.show_complete_graph(self,RIGHT_X_AREA,LEFT_X_AREA)
+        # root = graph.root
+        # radius = graph.root.visual_shape.radius
 
-        current_y_point = 3
-        delta_x = 0
-        if graph.branching_factors[1] > 1:
-            delta_x = (RIGHT_X_AREA - LEFT_X_AREA) / (graph.branching_factors[1]-1)
-        root.set_pos(0,current_y_point)
-        current_y_point-=scale*2 + scale
-        start_x_point = LEFT_X_AREA
-        for i in graph.map[root]:
-            i.set_pos(start_x_point,current_y_point)
-            self.add(i.graphics,root.graphics,Arrow([root.x,root.y,0],[start_x_point,i.y,0],stroke_width=1,buff= i.scale))
-            start_x_point += delta_x
+        # current_y_point = 3
+        # delta_x = 0
+        # if graph.branching_factors[1] > 1:
+        #     delta_x = (RIGHT_X_AREA - LEFT_X_AREA) / (graph.branching_factors[1]-1)
+        # root.set_pos(0,current_y_point)
+        # current_y_point-=scale*2 + scale
+        # start_x_point = LEFT_X_AREA
+        # for i in graph.map[root]:
+        #     i.set_pos(start_x_point,current_y_point)
+        #     self.add(i.graphics,root.graphics,Arrow([root.x,root.y,0],[start_x_point,i.y,0],stroke_width=1,buff= i.scale))
+        #     start_x_point += delta_x
         
         # c1 = Circle()
         # c1.radius = CIRCLE_RADIUS

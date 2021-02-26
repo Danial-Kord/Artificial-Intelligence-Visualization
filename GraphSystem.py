@@ -1,3 +1,4 @@
+from logging import root
 from manim import *
 import codecs
 # from manimlib import *
@@ -13,6 +14,7 @@ class Node:
         self.visual_shape = Circle()
         self.scale = scale
         self.depth = 0
+        self.order = 0
         self.visual_shape.set_color(node_color)
     def set_pos(self,x,y):
         self.x = x
@@ -40,6 +42,7 @@ class Graph:
             self.map[old_node] = []
         (self.map[old_node]).append(new_node)
         new_node.depth = old_node.depth+1
+        new_node.order = self.branching_factors[new_node.depth]
         self.branching_factors[new_node.depth]+=1
     
     def read_from_file(self,path):
@@ -49,7 +52,7 @@ class Graph:
             self.branching_factors = []
             for i in range(max_depth):
                 self.branching_factors.append(0)
-                
+
             all_nodes = Lines[1].split(" ")
             all_nodes[len(all_nodes) -1] = all_nodes[len(all_nodes) -1].replace("\n","")
 
@@ -64,5 +67,24 @@ class Graph:
                 for j in range(1,len(links)):
                     self.insert(self.nodes[links[j]],self.nodes[links[0]])
     
-    
-        
+    def show_complete_graph(self,scene,RIGHT_X_AREA,LEFT_X_AREA):
+            y_bias = 3
+            group = VGroup()
+            # adding nodes
+            for i in self.nodes:
+                node = self.nodes[i]
+                group.add(node.graphics)
+                current_y_point = y_bias - (self.scale*2 + self.scale) * node.depth
+
+                current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
+                if self.branching_factors[node.depth] > 1:
+                    current_x_point = LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order
+
+                node.set_pos(current_x_point,current_y_point)
+                scene.add(node.graphics)
+            
+            # adding edges
+            for i in self.map:
+                nodes = self.map[i]
+                for j in nodes:
+                    scene.add(Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale))
