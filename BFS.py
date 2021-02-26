@@ -1,16 +1,20 @@
 #!/usr/bin/env python
-# from manim import *
-from manimlib import *
+from manim import *
+# from manimlib import *
 from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
 import numpy as np
-from manimlib import GraphSystem
+import GraphSystem
 
-CIRCLE_RADIUS = 1.5
+CIRCLE_RADIUS = 1
 
 
-class graph_search(Scene):
+class graph_search(MovingCameraScene):
     def construct(self):
         # grid = ScreenGrid()
+        camera = self.camera_frame
+        
+        # self.play(camera.set_width,12)
+
         path = input("enter path : ")
         graph = GraphSystem.Graph(CIRCLE_RADIUS)
         graph.read_from_file(path)
@@ -23,8 +27,9 @@ class graph_search(Scene):
         start_x_point = root.x - delta_x
         for i in graph.map[root]:
             i.set_pos(start_x_point,current_y_point)
-            self.add(i.graphics,root.graphics,Arrow([root.x,root.y,0],[start_x_point,i.y,0],stroke_width=1,buff=CIRCLE_RADIUS))
+            self.add(i.graphics,root.graphics,Arrow([root.x,root.y,0],[start_x_point,i.y,0],stroke_width=1,buff=i.visual_shape.radius * i.scale))
             start_x_point += CIRCLE_RADIUS*2
+        
         # c1 = Circle()
         # c1.radius = CIRCLE_RADIUS
         # c1.move_to([0,0,0])

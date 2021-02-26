@@ -1,40 +1,63 @@
 from manim import *
-# from manim import *
-from manimlib import *
+import codecs
+# from manimlib import *
 class Node:
 
-    def __init__(self, number,node_color=WHITE):
+    def __init__(self, name,radius,node_color=WHITE):
         self.parent = None
         self.left = None
         self.right = None
-        self.number = number
+        self.name = name
 
 
         self.right_edge = None
         self.left_edge = None
         self.visual_shape = Circle()
+        # self.visual_shape.radius = radius
         self.visual_shape.set_color(node_color)
-    def setPos(self,x,y):
+    def set_pos(self,x,y,scale=0.5):
         self.x = x
         self.y = y
-        self.visual_number = Text(str(self.number))
-        self.visual_number.move_to([x, y, 0])
+        self.scale = scale
+        self.visual_name = Text(str(self.name))
+        self.visual_name.move_to([x, y, 0])
         self.visual_shape.move_to([x, y, 0])
-        self.graphics = VGroup(self.visual_number,self.visual_shape)
+        self.graphics = VGroup(self.visual_name,self.visual_shape)
+        self.visual_name.scale(scale)
+        self.visual_shape.scale(scale)
         
 
 
 class Graph:
-    def __init__(self,root):
+    def __init__(self,node_radius,root = None):
         self.root = root
+        self.node_radius = node_radius
         self.map = {}
-        self.map[root] = []
-        self.maxIndex=0
+        self.nodes = {}
+        if root is not None:
+            self.map[root] = []
 
     def insert(self,new_node,old_node):
         if not self.map.keys().__contains__(old_node):
             self.map[old_node] = []
-        # self.map[old_node].Appened(new_node)
+        (self.map[old_node]).append(new_node)
+    
+    def read_from_file(self,path):
+        with codecs.open(path, 'r') as f:
+            Lines = f.readlines()
+            all_nodes = Lines[1].split(" ")
+            all_nodes[len(all_nodes) -1] = all_nodes[len(all_nodes) -1].replace("\n","")
+
+            for j in range(0,len(all_nodes)):
+                self.nodes[all_nodes[j]] = Node(all_nodes[j],self.node_radius)
+            self.root = self.nodes[all_nodes[0]]
+            # adding links between nodes
+            index = 0
+            for i in range(2,len(Lines)):
+                links = Lines[i].split(" ")
+                links[len(links) -1] = links[len(links) -1].replace("\n","")
+                for j in range(1,len(links)):
+                    self.insert(self.nodes[links[j]],self.nodes[links[0]])
     
     
         

@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 
+
+
 # from manim import *
 from manimlib import *
 from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
 import numpy as np
+from manimlib import GraphSystem
 
+
+# import importlib
+
+# GraphSystem = importlib.import_module("GraphSystem.py")
+# print(GraphSystem)
 class Grid(VGroup):
     CONFIG = {
         "height": 6.0,
@@ -98,7 +106,15 @@ class Test(Scene):
     def construct(self):
         grid = ScreenGrid()
         c1 = Circle()
-        c1.to_edge(np.array((1,1,0)))
-        self.add(grid,c1,Arrow([0,0,0],[1,0,0],stroke_width=1,buff=0))
+        c1.move_to([0,0,0])
+        root = GraphSystem.Node("A")
+        graph = GraphSystem.Graph(root)
+        root.setPos(0,0)
+        newNode = GraphSystem.Node("B")
+        newNode.setPos(3,3)
+        graph.insert(newNode,root)
+        self.add(grid,Arrow([root.x,root.y,0],[newNode.x,newNode.y,0],stroke_width=1,buff=c1.radius))
+        self.add(root.graphics,newNode.graphics)
         self.wait(3)
         
+
