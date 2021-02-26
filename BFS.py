@@ -5,7 +5,7 @@ from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
 import numpy as np
 import GraphSystem
 
-scale = 0.75
+scale = 0.5
 
 LEFT_X_AREA = -4
 RIGHT_X_AREA = 4

@@ -1,5 +1,5 @@
 4 2
-A B C D E
-A B C
-C D
-D E
+A B C D E F G H S
+A B C S
+C D F
+D E G H

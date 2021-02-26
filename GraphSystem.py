@@ -73,18 +73,19 @@ class Graph:
             # adding nodes
             for i in self.nodes:
                 node = self.nodes[i]
-                group.add(node.graphics)
                 current_y_point = y_bias - (self.scale*2 + self.scale) * node.depth
 
                 current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
                 if self.branching_factors[node.depth] > 1:
                     current_x_point = LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order
-
+                
                 node.set_pos(current_x_point,current_y_point)
-                scene.add(node.graphics)
+                group.add(node.graphics)
+
             
             # adding edges
             for i in self.map:
                 nodes = self.map[i]
                 for j in nodes:
-                    scene.add(Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale))
+                    group.add(Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale))
+            scene.add(group)
