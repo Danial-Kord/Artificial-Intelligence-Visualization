@@ -15,6 +15,8 @@ class Node:
         self.scale = scale
         self.depth = 0
         self.order = 0
+        self.dad = None
+        self.arrow = None
         self.visual_shape.set_color(node_color)
     def set_pos(self,x,y):
         self.x = x
@@ -25,6 +27,10 @@ class Node:
         self.graphics = VGroup(self.visual_name,self.visual_shape)
         self.visual_name.scale(self.scale)
         self.visual_shape.scale(self.scale)
+
+    def set_dad(self,node,arrow):
+        self.dad = node
+        self.arrow = arrow
         
 
 

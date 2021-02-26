@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import copy
 from manim import *
 # from manimlib import *
 from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
@@ -34,37 +35,58 @@ class graph_search(MovingCameraScene):
 
 
         # Start BFS
-        draw_root = graph.root.graphics.copy()
+        clone_graph = copy.deepcopy(graph)
+        draw_root = clone_graph.root.graphics
         LEFT_X_AREA = sample_graph.get_width() + sample_graph.get_center()[0] + 0.5
         RIGHT_X_AREA = 5.5
-        self.play(draw_root.animate.move_to(graph.get_node_relative_pos(graph.root,RIGHT_X_AREA,LEFT_X_AREA)))
+        self.play(draw_root.animate.move_to(clone_graph.get_node_relative_pos(clone_graph.root,RIGHT_X_AREA,LEFT_X_AREA)))
         draw_root.set_color(BLUE_A)
         self.play(draw_root.animate.scale(1.5))
 
         frontier = []
-        shape_frontier = []
         explored = []
-        shape_frontier.append(draw_root)
-        frontier.append(graph.root)
+        way = []
+        frontier.append(clone_graph.root)
         while(True):
             if len(frontier) == 0:
                 break
             expand_node = frontier.pop()
-            expand_shape = shape_frontier.pop()
             explored.append(expand_node)
-            if graph.map.__contains__(expand_node):
-                for i in graph.map[expand_node]:
+            if clone_graph.map.__contains__(expand_node):
+                for i in clone_graph.map[expand_node]:
                     if i in explored:
                         continue
                     frontier.append(i)
-                    draw_root = i.graphics.copy()
-                    shape_frontier.append(draw_root)
-                    pos = graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
+                    draw_root = i.graphics
+                    pos = clone_graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
                     self.play(draw_root.animate.move_to(pos))
                     draw_root.set_color(BLUE_A)
-                    self.play(draw_root.animate.scale(1.5))
-                    arrow = Arrow(expand_shape.get_center(),draw_root.get_center(),stroke_width=1,buff=draw_root.get_width()/2,color=YELLOW)
-                    self.play(Write(arrow))
+                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=1,buff=draw_root.get_width()*1.5/2,color=YELLOW)
+                    i.set_dad(expand_node,arrow)
+                    
+                    self.play(Write(arrow),draw_root.animate.scale(1.5))
+
+                    if i.name == "G":
+                        temp = i
+                        while temp.dad is not None:
+                            way.append(temp)
+                            temp = temp.dad
+                        way.append(temp)
+                        way.reverse()
+                        for j in way:
+                            if j.arrow is not None:
+                                arrow = j.arrow
+                                arrow.set_color(GREEN)
+                                self.play(Write(arrow))
+                                j.graphics.set_color(GREEN)
+                                self.add(j.graphics)
+                                self.wait(0.5)
+                            else:
+                                j.graphics.set_color(GREEN)
+                                self.play(Write(j.graphics))
+                        break
+
+                    
         v = VGroup
 
         # c1 = Circle()
