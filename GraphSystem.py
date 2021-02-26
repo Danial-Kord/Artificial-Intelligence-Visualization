@@ -81,11 +81,24 @@ class Graph:
                 
                 node.set_pos(current_x_point,current_y_point)
                 group.add(node.graphics)
+                scene.add(node.graphics)
 
+            scene.add(node.graphics)
             
             # adding edges
             for i in self.map:
                 nodes = self.map[i]
                 for j in nodes:
-                    group.add(Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale))
-            scene.add(group)
+                    arrow = Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
+                    group.add(arrow)
+                    scene.add(arrow)
+            return group
+    
+    def get_node_relative_pos(self,node,RIGHT_X_AREA,LEFT_X_AREA):
+        y_bias = 3
+        current_y_point = float(y_bias - (self.scale*2 + self.scale) * node.depth)
+
+        current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
+        if self.branching_factors[node.depth] > 1:
+            current_x_point = float(LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order)
+        return [current_x_point,current_y_point,0]
