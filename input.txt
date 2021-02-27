@@ -1,5 +1,6 @@
 4 2
-A B C D E F G H S
+A B C D E F G H S N
 A B C S
+B N
 C D F
 D E G H
