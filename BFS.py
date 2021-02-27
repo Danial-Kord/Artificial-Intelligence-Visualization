@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import copy
+from operator import le
 from manim import *
 # from manimlib import *
 from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
@@ -53,8 +54,55 @@ class graph_search(MovingCameraScene):
         start_pos[1] += between_Text_gaps
         return output , group.animate.shift(UP*between_Text_gaps)
 
+    def introduction(self):
+        header = Tex("Birst First Search Algorithm")
+        header.set_width(8)
+        from_pos = [header.get_left()[0] - 1, header.get_bottom()[1]-0.5,0]
+        to_pos = [header.get_right()[0] + 1, header.get_bottom()[1]-0.5,0]
+        line = Line(from_pos,to_pos)
+        writer = Tex("Created by Danial Kordmodanlou")
+        writer_pos = [(line.get_left()[0] + line.get_right()[0]) / 2 , line.get_bottom()[1] -1,0]
+        writer.move_to(writer_pos)
+        self.play(Write(header),Write(line))
+        self.wait(0.5)
+        self.play(Transform(header,Tex("BFS Algorithm")))
+        self.play(Write(writer))
+        self.wait(1.5)
+        return VGroup(header,writer,line)
+        
+    def start_up_actions(self):
+        opening = self.introduction()
+        self.play(FadeOut(opening))
+        self.wait(0.5)
+        explanation = Tex("\\begin{flushleft}Steps : \\end{flushleft}",
+        "\\begin{flushleft}1.add root to frontier  \\end{flushleft} ",
+        "\\begin{flushleft} 2.pop out from frontier as queue and add it to explored set  \\end{flushleft}", 
+        "\\begin{flushleft} 3.find all child nodes and add them to frontier \\newline except repetitive nodes that are in explored or frontier sets \\newline \\end{flushleft}",
+        "\\begin{flushleft} 4.check if new nodes are our target :  \\end{flushleft}")
+    
+        explanation.scale(0.75)
+        explanation.to_corner(UL)
+        rules = Tex("\\begin{flushleft} 4.1.if TRUE: \\newline \\space return the way from root to target \\newline 4.2.else repeat 2 to 4\\end{flushleft}")
+        rules.scale(0.75)
+        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.5)
+        brace = Brace(rules,direction=LEFT)
+        times = [0.7,3,10,3,2]
+        for i in range(len(explanation)):
+            self.play(Write(explanation[i],run_time=times[i]))
+        self.wait(0.5)
+        self.play(Write(brace),Write(rules,run_time=3))
+        return VGroup(brace,explanation,rules)
+
+    def show_ending(self):
+        self.clear()
+        ending_text = Text("Thanks for Watching")
+        ending_text.set_color_by_gradient(BLUE,YELLOW)
+        self.play(Write(ending_text))
+        self.wait(1.5)
 
     def construct(self):
+
+        opening = self.start_up_actions()
         LEFT_X_AREA = -4
         RIGHT_X_AREA = 4
         
@@ -69,12 +117,15 @@ class graph_search(MovingCameraScene):
 
         # showing sample graph
         sample_graph = graph.show_complete_graph(self,RIGHT_X_AREA,LEFT_X_AREA)
-        self.play(sample_graph.animate.scale(0.5))
-        self.wait(1)
-        self.play(sample_graph.animate.to_edge(UL))
-        self.wait(1)
-        self.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph)))
 
+        self.play(Transform(opening,sample_graph))
+        self.wait(1.5)
+        self.remove(opening)
+        self.play(sample_graph.animate.scale(0.5))
+        self.play(sample_graph.animate.to_edge(UL))
+        self.wait(0.5)
+        self.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph)))
+        
 
         # Start BFS
         frontier_text_pos , explored_text_pos = self.build_table(sample_graph)
@@ -143,17 +194,5 @@ class graph_search(MovingCameraScene):
                         break
 
                     
-        v = VGroup
-        
-        # c1 = Circle()
-        # c1.radius = CIRCLE_RADIUS
-        # c1.move_to([0,0,0])
-        # root = GraphSystem.Node("A")
-        # graph = GraphSystem.Graph(root)
-        # root.setPos(0,0)
-        # newNode = GraphSystem.Node("B")
-        # newNode.setPos(3,3)
-        # graph.insert(newNode,root)
-        # self.add(Arrow([root.x,root.y,0],[newNode.x,newNode.y,0],stroke_width=1,buff=c1.radius))
-        # self.add(root.graphics,newNode.graphics)
-        self.wait(3)
+        self.show_ending()
+    

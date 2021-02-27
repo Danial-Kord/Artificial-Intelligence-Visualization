@@ -87,9 +87,9 @@ class Graph:
                 
                 node.set_pos(current_x_point,current_y_point)
                 group.add(node.graphics)
-                scene.add(node.graphics)
+                # scene.add(node.graphics)
 
-            scene.add(node.graphics)
+            # scene.add(node.graphics)
             
             # adding edges
             for i in self.map:
@@ -97,7 +97,7 @@ class Graph:
                 for j in nodes:
                     arrow = Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
                     group.add(arrow)
-                    scene.add(arrow)
+                    # scene.add(arrow)
             return group
     
     def get_node_relative_pos(self,node,RIGHT_X_AREA,LEFT_X_AREA):
