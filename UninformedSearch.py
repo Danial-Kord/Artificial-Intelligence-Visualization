@@ -11,41 +11,67 @@ import GraphSystem
 scale = 0.5
 
 
+def build_table(scene,sample_graph):
+    top_pos = sample_graph.get_bottom()
+    top_pos[1]-=0.5
+    bottom_pos = [top_pos[0],-20,0]
+    left_pos = [sample_graph.get_left()[0],top_pos[1]-1,0]
+    vertical_line = Line(top_pos,bottom_pos)
+    horizantal_line = Line(left_pos,[sample_graph.get_right()[0],top_pos[1]-1,0])
+    scene.play(Write(vertical_line),Write(horizantal_line))
+    explored_header = Text("Explored",size=0.5)
+    frontier_header = Text("Frontier",size=0.5)
+    x1 = horizantal_line.get_bottom()
+    x2 = horizantal_line.get_bottom()
+    x1[0] = (x1[0] + horizantal_line.get_right()[0]) / 2
+    x2[0] = (x2[0] + horizantal_line.get_left()[0]) / 2
+    x1[1] += between_Text_gaps
+    x2[1] += between_Text_gaps
+    explored_header.move_to(x2)
+    frontier_header.move_to(x1)
+    scene.play(Write(explored_header),Write(frontier_header))
+    x1[1] -= between_Text_gaps*2
+    x2[1] -= between_Text_gaps*2
+    return x1,x2
+
+def frontier_table_text_add(array,text,pos):
+    # new_text = text.copy()
+    new_text = Text(text,size=0.5)
+    new_text.move_to(pos)
+    array.append(new_text)
+    pos[1] -= between_Text_gaps
+    return new_text
+
+def sample_graph_animation(scene,opening,sample_graph):
+    scene.play(Transform(opening,sample_graph))
+    scene.wait(1.5)
+    scene.remove(opening)
+    scene.play(sample_graph.animate.scale(STATIC_GRAPH_MIN_SCALE))
+    scene.play(sample_graph.animate.to_edge(UL))
+    scene.wait(0.5)
+    scene.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph)))
+
 
 
 between_Text_gaps = 0.5
+STATIC_GRAPH_LEFT_X_AREA = -4
+STATIC_GRAPH_RIGHT_X_AREA = 4
+STATIC_GRAPH_MIN_SCALE = 0.5
+NODES_SCALE = 1.5
+
+def show_ending(self):
+    
+    self.play(*[FadeOut(mob)for mob in self.mobjects])
+    self.wait(0.5)
+    ending_text = Text("Thanks for Watching")
+    ending_text.set_color_by_gradient(BLUE,YELLOW)
+    self.play(Write(ending_text,run_time=1.8))
+    self.wait(3)
+    self.play(*[FadeOut(mob)for mob in self.mobjects])
+
 
 class BFS_graph_search(MovingCameraScene):
-    def build_table(self,sample_graph):
-        top_pos = sample_graph.get_bottom()
-        top_pos[1]-=0.5
-        bottom_pos = [top_pos[0],-20,0]
-        left_pos = [sample_graph.get_left()[0],top_pos[1]-1,0]
-        vertical_line = Line(top_pos,bottom_pos)
-        horizantal_line = Line(left_pos,[sample_graph.get_right()[0],top_pos[1]-1,0])
-        self.play(Write(vertical_line),Write(horizantal_line))
-        explored_header = Text("Explored",size=0.5)
-        frontier_header = Text("Frontier",size=0.5)
-        x1 = horizantal_line.get_bottom()
-        x2 = horizantal_line.get_bottom()
-        x1[0] = (x1[0] + horizantal_line.get_right()[0]) / 2
-        x2[0] = (x2[0] + horizantal_line.get_left()[0]) / 2
-        x1[1] += between_Text_gaps
-        x2[1] += between_Text_gaps
-        explored_header.move_to(x2)
-        frontier_header.move_to(x1)
-        self.play(Write(explored_header),Write(frontier_header))
-        x1[1] -= between_Text_gaps*2
-        x2[1] -= between_Text_gaps*2
-        return x1,x2
 
-    def frontier_table_text_add(self,array,text,pos):
-        # new_text = text.copy()
-        new_text = Text(text,size=0.5)
-        new_text.move_to(pos)
-        array.append(new_text)
-        pos[1] -= between_Text_gaps
-        return new_text
 
     def explored_table_text_add(self,array,frontier_array,end_pos,start_pos):
         # new_text = text.copy()
@@ -110,25 +136,13 @@ class BFS_graph_search(MovingCameraScene):
         self.wait(1)
         return example_header_tex
 
-    def show_ending(self):
-        
-        self.play(*[FadeOut(mob)for mob in self.mobjects])
-        self.wait(0.5)
-        ending_text = Text("Thanks for Watching")
-        ending_text.set_color_by_gradient(BLUE,YELLOW)
-        self.play(Write(ending_text,run_time=1.8))
-        self.wait(3)
-        self.play(*[FadeOut(mob)for mob in self.mobjects])
+
 
     def construct(self):
 
         opening = self.start_up_actions()
-        LEFT_X_AREA = -4
-        RIGHT_X_AREA = 4
+
         
-        # grid = ScreenGrid()
-        camera = self.camera_frame
-        # camera.set_width(12)
 
         # path = input("enter path : ")
         path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\input.txt"
@@ -136,17 +150,12 @@ class BFS_graph_search(MovingCameraScene):
         graph.read_from_file(path)
 
         # showing sample graph
-        sample_graph = graph.show_complete_graph(self,RIGHT_X_AREA,LEFT_X_AREA)
+        sample_graph = graph.show_complete_graph(self,STATIC_GRAPH_RIGHT_X_AREA,STATIC_GRAPH_LEFT_X_AREA)
 
-        self.play(Transform(opening,sample_graph))
-        self.wait(1.5)
-        self.remove(opening)
-        self.play(sample_graph.animate.scale(0.5))
-        self.play(sample_graph.animate.to_edge(UL))
-        self.wait(0.5)
-        self.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph)))
+        sample_graph_animation(self,opening,sample_graph)
+
         # Start BFS
-        frontier_text_pos , explored_text_pos = self.build_table(sample_graph)
+        frontier_text_pos , explored_text_pos = build_table(self,sample_graph)
 
         clone_graph = copy.deepcopy(graph)
         draw_root = clone_graph.root.graphics
@@ -161,10 +170,10 @@ class BFS_graph_search(MovingCameraScene):
         explored_text = []
 
 
-        self.play(Write(self.frontier_table_text_add(frontier_text,clone_graph.root.name,frontier_text_pos))
+        self.play(Write(frontier_table_text_add(frontier_text,clone_graph.root.name,frontier_text_pos))
         ,draw_root.animate.move_to(clone_graph.get_node_relative_pos(clone_graph.root,RIGHT_X_AREA,LEFT_X_AREA)))
         draw_root.set_color(BLUE_A)
-        self.play(draw_root.animate.scale(1.5))
+        self.play(draw_root.animate.scale(NODES_SCALE))
 
         frontier.append(clone_graph.root)
         check = True
@@ -184,13 +193,13 @@ class BFS_graph_search(MovingCameraScene):
                     frontier.append(i)
                     draw_root = i.graphics
                     pos = clone_graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
-                    self.play(Write(self.frontier_table_text_add(frontier_text,i.name,frontier_text_pos))
+                    self.play(Write(frontier_table_text_add(frontier_text,i.name,frontier_text_pos))
                         ,draw_root.animate.move_to(pos))
                     draw_root.set_color(BLUE_A)
-                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=1.5,buff=draw_root.get_width()*1.5/2,color=YELLOW)
+                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()*NODES_SCALE/2,color=YELLOW)
                     i.set_dad(expand_node,arrow)
                     
-                    self.play(Write(arrow),draw_root.animate.scale(1.5))
+                    self.play(Write(arrow),draw_root.animate.scale(NODES_SCALE))
                     self.wait(1)
                     if i.name == "G":
                         temp = i
@@ -212,5 +221,5 @@ class BFS_graph_search(MovingCameraScene):
                         break
 
         self.wait(1)
-        self.show_ending()
+        show_ending(self)
     
