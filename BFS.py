@@ -5,6 +5,7 @@ from manim import *
 # from manimlib import *
 from manimlib.constants import FRAME_HEIGHT, FRAME_Y_RADIUS
 import numpy as np
+from typing_extensions import runtime
 import GraphSystem
 
 scale = 0.5
@@ -14,7 +15,7 @@ scale = 0.5
 
 between_Text_gaps = 0.5
 
-class graph_search(MovingCameraScene):
+class BFS_graph_search(MovingCameraScene):
     def build_table(self,sample_graph):
         top_pos = sample_graph.get_bottom()
         top_pos[1]-=0.5
@@ -23,15 +24,19 @@ class graph_search(MovingCameraScene):
         vertical_line = Line(top_pos,bottom_pos)
         horizantal_line = Line(left_pos,[sample_graph.get_right()[0],top_pos[1]-1,0])
         self.play(Write(vertical_line),Write(horizantal_line))
-        header = Text("Explored    Frontier",size=0.5)
-        header.next_to(horizantal_line,direction=UP)
-        self.play(Write(header))
+        explored_header = Text("Explored",size=0.5)
+        frontier_header = Text("Frontier",size=0.5)
         x1 = horizantal_line.get_bottom()
         x2 = horizantal_line.get_bottom()
         x1[0] = (x1[0] + horizantal_line.get_right()[0]) / 2
         x2[0] = (x2[0] + horizantal_line.get_left()[0]) / 2
-        x1[1] -= between_Text_gaps
-        x2[1] -= between_Text_gaps
+        x1[1] += between_Text_gaps
+        x2[1] += between_Text_gaps
+        explored_header.move_to(x2)
+        frontier_header.move_to(x1)
+        self.play(Write(explored_header),Write(frontier_header))
+        x1[1] -= between_Text_gaps*2
+        x2[1] -= between_Text_gaps*2
         return x1,x2
 
     def frontier_table_text_add(self,array,text,pos):
@@ -55,7 +60,7 @@ class graph_search(MovingCameraScene):
         return output , group.animate.shift(UP*between_Text_gaps)
 
     def introduction(self):
-        header = Tex("Birst First Search Algorithm")
+        header = Tex("Breadt First Search Algorithm")
         header.set_width(8)
         from_pos = [header.get_left()[0] - 1, header.get_bottom()[1]-0.5,0]
         to_pos = [header.get_right()[0] + 1, header.get_bottom()[1]-0.5,0]
@@ -71,34 +76,49 @@ class graph_search(MovingCameraScene):
         return VGroup(header,writer,line)
         
     def start_up_actions(self):
+        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\Isla De Flores Berlioz (mp3cut.net).m4a"
+        self.add_sound(sound_path)
         opening = self.introduction()
         self.play(FadeOut(opening))
         self.wait(0.5)
         explanation = Tex("\\begin{flushleft}Steps : \\end{flushleft}",
-        "\\begin{flushleft}1.add root to frontier  \\end{flushleft} ",
-        "\\begin{flushleft} 2.pop out from frontier as queue and add it to explored set  \\end{flushleft}", 
-        "\\begin{flushleft} 3.find all child nodes and add them to frontier \\newline except repetitive nodes that are in explored or frontier sets \\newline \\end{flushleft}",
-        "\\begin{flushleft} 4.check if new nodes are our target :  \\end{flushleft}")
+        "\\begin{flushleft}1. add root to frontier  \\end{flushleft} ",
+        "\\begin{flushleft} 2. pop out from frontier as queue and add it to explored set  \\end{flushleft}", 
+        "\\begin{flushleft} 3. find all child nodes and add them to frontier \\newline except repetitive nodes that are in explored or frontier sets \\newline \\end{flushleft}",
+        "\\begin{flushleft} 4. check if new nodes are our target :  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
     
         explanation.scale(0.75)
         explanation.to_corner(UL)
-        rules = Tex("\\begin{flushleft} 4.1.if TRUE: \\newline \\space return the way from root to target \\newline 4.2.else repeat 2 to 4\\end{flushleft}")
+        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} is True} : \\newline \\space return the way from root to target \\newline 4.2. else repeat 2 to 4\\end{flushleft}")
         rules.scale(0.75)
         rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.5)
         brace = Brace(rules,direction=LEFT)
-        times = [0.7,3,10,3,2]
+        times = [0.7,3,4,5.5,2]
+        finished_time_delay = [0,1.5,1.5,3,1.5]
         for i in range(len(explanation)):
             self.play(Write(explanation[i],run_time=times[i]))
+            self.wait(finished_time_delay[i])
         self.wait(0.5)
         self.play(Write(brace),Write(rules,run_time=3))
-        return VGroup(brace,explanation,rules)
+        self.wait(3)
+        all_group = VGroup(brace,explanation,rules)
+        self.play(FadeOut(all_group))
+        example_header_tex = Tex("example of BFS graph mode with goal test ","on node creation time")
+        example_header_tex[0].move_to([0,0,0])
+        example_header_tex[1].next_to(example_header_tex[0],DOWN)
+        self.play(Write(example_header_tex))
+        self.wait(1)
+        return example_header_tex
 
     def show_ending(self):
-        self.clear()
+        
+        self.play(*[FadeOut(mob)for mob in self.mobjects])
+        self.wait(0.5)
         ending_text = Text("Thanks for Watching")
         ending_text.set_color_by_gradient(BLUE,YELLOW)
-        self.play(Write(ending_text))
-        self.wait(1.5)
+        self.play(Write(ending_text,run_time=1.8))
+        self.wait(3)
+        self.play(*[FadeOut(mob)for mob in self.mobjects])
 
     def construct(self):
 
@@ -125,8 +145,6 @@ class graph_search(MovingCameraScene):
         self.play(sample_graph.animate.to_edge(UL))
         self.wait(0.5)
         self.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph)))
-        
-
         # Start BFS
         frontier_text_pos , explored_text_pos = self.build_table(sample_graph)
 
@@ -157,6 +175,8 @@ class graph_search(MovingCameraScene):
             anim1,anim2 = self.explored_table_text_add(explored_text,frontier_text,explored_text_pos,frontier_text_pos)
             self.play(anim1,anim2)
             explored.append(expand_node)
+            self.play(expand_node.visual_shape.animate.set_color(YELLOW))
+            self.wait(0.7)
             if clone_graph.map.__contains__(expand_node):
                 for i in clone_graph.map[expand_node]:
                     if i in explored:
@@ -167,7 +187,7 @@ class graph_search(MovingCameraScene):
                     self.play(Write(self.frontier_table_text_add(frontier_text,i.name,frontier_text_pos))
                         ,draw_root.animate.move_to(pos))
                     draw_root.set_color(BLUE_A)
-                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=1,buff=draw_root.get_width()*1.5/2,color=YELLOW)
+                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=1.5,buff=draw_root.get_width()*1.5/2,color=YELLOW)
                     i.set_dad(expand_node,arrow)
                     
                     self.play(Write(arrow),draw_root.animate.scale(1.5))
@@ -180,19 +200,17 @@ class graph_search(MovingCameraScene):
                         way.append(temp)
                         way.reverse()
                         for j in way:
-                            graphics = j.graphics
-                            graphics.set_color(GREEN)
+                            circle = j.visual_shape.copy()
+                            circle.set_stroke(width= circle.get_stroke_width()*1.8,color = GREEN_C)
+                            circle.shift([0,0,1])
                             if j.arrow is not None:
                                 arrow = j.arrow
-                                arrow.set_color(GREEN)
-                                self.play(Write(arrow))
-                                self.add(graphics)
-                                self.wait(0.5)
-                            else:
-                                self.play(Write(graphics))
+                                self.play(arrow.animate.set_color(GREEN_D))
+                            self.play(ShowCreation(circle))
+                            self.wait(0.5)
                         check = False
                         break
 
-                    
+        self.wait(1)
         self.show_ending()
     

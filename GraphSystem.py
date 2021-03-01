@@ -4,7 +4,7 @@ import codecs
 # from manimlib import *
 class Node:
 
-    def __init__(self, name,scale,node_color=WHITE):
+    def __init__(self, name,scale,width = 5,node_color=WHITE):
         self.parent = None
         self.left = None
         self.right = None
@@ -17,6 +17,7 @@ class Node:
         self.order = 0
         self.dad = None
         self.arrow = None
+        self.visual_shape.set_stroke(width=width,color=BLUE)
         self.visual_shape.set_color(node_color)
     def set_pos(self,x,y):
         self.x = x
