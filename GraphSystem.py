@@ -1,7 +1,13 @@
 from logging import root
 from manim import *
 import codecs
+import random
 # from manimlib import *
+
+RANDOM_POSITINAL_ENABLE = True
+POSITIONAL_RANDOMNESS = 0.2
+RANDOM_PRECESION = 1000
+
 class Node:
 
     def __init__(self, name,scale,width = 5,node_color=WHITE):
@@ -15,6 +21,7 @@ class Node:
         self.scale = scale
         self.depth = 0
         self.order = 0
+        self.random_index = 0
         self.dad = None
         self.arrow = None
         self.visual_shape.set_stroke(width=width,color=BLUE)
@@ -48,9 +55,12 @@ class Graph:
         if not self.map.keys().__contains__(old_node):
             self.map[old_node] = []
         (self.map[old_node]).append(new_node)
-        new_node.depth = old_node.depth+1
-        new_node.order = self.branching_factors[new_node.depth]
-        self.branching_factors[new_node.depth]+=1
+        if new_node.depth == 0:
+            new_node.depth = old_node.depth+1
+            new_node.order = self.branching_factors[new_node.depth]
+            self.branching_factors[new_node.depth]+=1
+            
+            
     
     def read_from_file(self,path):
         with codecs.open(path, 'r') as f:
@@ -65,6 +75,7 @@ class Graph:
 
             for j in range(0,len(all_nodes)):
                 self.nodes[all_nodes[j]] = Node(all_nodes[j],self.scale)
+                self.nodes[all_nodes[j]].random_index = random.randint(10,2000)
             self.root = self.nodes[all_nodes[0]]
             # adding links between nodes
             index = 0
@@ -85,7 +96,9 @@ class Graph:
                 current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
                 if self.branching_factors[node.depth] > 1:
                     current_x_point = LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order
-                
+                    if RANDOM_POSITINAL_ENABLE:
+                        # random.seed(node.random_index)
+                        current_x_point += (float(random.randint(-RANDOM_PRECESION*POSITIONAL_RANDOMNESS,RANDOM_PRECESION*POSITIONAL_RANDOMNESS))) / (RANDOM_PRECESION)
                 node.set_pos(current_x_point,current_y_point)
                 group.add(node.graphics)
                 # scene.add(node.graphics)
@@ -108,4 +121,7 @@ class Graph:
         current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
         if self.branching_factors[node.depth] > 1:
             current_x_point = float(LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order)
+            if RANDOM_POSITINAL_ENABLE:
+                # random.seed(node.random_index)
+                current_x_point += (float(random.randint(-RANDOM_PRECESION*POSITIONAL_RANDOMNESS,RANDOM_PRECESION*POSITIONAL_RANDOMNESS))) / (RANDOM_PRECESION)
         return [current_x_point,current_y_point,0]
