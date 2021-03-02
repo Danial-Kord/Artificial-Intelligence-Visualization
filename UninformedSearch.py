@@ -53,8 +53,8 @@ def sample_graph_animation(scene,opening,sample_graph):
 
 
 
-between_Text_gaps = 0.5
-TABLE_TEXT_SIZE = 0.5
+between_Text_gaps = 0.35
+TABLE_TEXT_SIZE = 0.4
 STATIC_GRAPH_LEFT_X_AREA = -4
 STATIC_GRAPH_RIGHT_X_AREA = 4
 STATIC_GRAPH_MIN_SCALE = 0.5
@@ -193,7 +193,7 @@ class BFS_graph_search(MovingCameraScene):
             self.wait(0.7)
             if clone_graph.map.__contains__(expand_node):
                 for i in clone_graph.map[expand_node]:
-                    if i in explored:
+                    if i in explored or i in frontier:
                         continue
                     frontier.append(i)
                     draw_root = i.graphics
@@ -359,7 +359,7 @@ class DFS_graph_search(MovingCameraScene):
                 reverse_array_index = []
                 temp = len(frontier_index_array)-1
                 for i in clone_graph.map[expand_node]:
-                    if i in explored:
+                    if i in explored or i in frontier:
                         continue
                     temp+=1
                     reverse_array.append(i)
@@ -567,7 +567,7 @@ class IDS_graph_search(MovingCameraScene):
                 reverse_array_index = []
                 temp = len(frontier_index_array)-1
                 for i in clone_graph.map[expand_node]:
-                    if i in explored or i.depth > depth_level:
+                    if i in explored or i in frontier or i.depth > depth_level:
                         continue
                     temp+=1
                     reverse_array.append(i)
