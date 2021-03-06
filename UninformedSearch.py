@@ -105,25 +105,25 @@ class BFS_graph_search(MovingCameraScene):
         return VGroup(header,writer,line)
         
     def start_up_actions(self):
-        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\Isla De Flores Berlioz (mp3cut.net).m4a"
+        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\\bensound-creativeminds (mp3cut.net).mp3"
         self.add_sound(sound_path)
         opening = self.introduction()
         self.play(FadeOut(opening))
         self.wait(0.5)
-        explanation = Tex("\\begin{flushleft}Steps : \\end{flushleft}",
-        "\\begin{flushleft}1. add root to frontier  \\end{flushleft} ",
-        "\\begin{flushleft}2. if frontier is empty there is no answer of this graph\\end{flushleft} ",
-        "\\begin{flushleft} 3. pop out from frontier as queue and add it to explored set  \\end{flushleft}", 
-        "\\begin{flushleft} 4. find all child nodes and add them to frontier \\newline except repetitive nodes that are in explored or frontier sets \\newline \\end{flushleft}",
-        "\\begin{flushleft} 5. check if new nodes are our target :  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
+        explanation = Tex("\\begin{flushleft}Steps: \\end{flushleft}",
+        "\\begin{flushleft} 1. add root to frontier  \\end{flushleft} ",
+        "\\begin{flushleft} 2. if frontier is empty there is no answer for this graph\\end{flushleft} ",
+        "\\begin{flushleft} 3. pop out from frontier as queue and add it to the explored set  \\end{flushleft}", 
+        "\\begin{flushleft} 4. find all child nodes and add them to the frontier \\newline except repetitive nodes that are in the explored or frontier sets \\newline \\end{flushleft}",
+        "\\begin{flushleft} 5. check if new nodes include the target node:  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
     
     
         explanation.scale(0.75)
         explanation.to_corner(UL)
-        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} is True} : \\newline \\space return the way from root to target \\newline 4.2. else repeat 2 to 5\\end{flushleft}")
+        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} True}: \\newline \\space return the path \\newline 4.2. else repeat steps 2 to 5\\end{flushleft}")
         rules.scale(0.75)
-        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.5)
-        brace = Brace(rules,direction=LEFT)
+        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.7)
+        brace = Brace(rules,direction=LEFT,buff=0.1)
         times = [0.7,3,4,4,5.5,2]
         finished_time_delay = [0,1.5,1.5,1.5,3,1.5]
         for i in range(len(explanation)):
@@ -134,7 +134,7 @@ class BFS_graph_search(MovingCameraScene):
         self.wait(3)
         all_group = VGroup(brace,explanation,rules)
         self.play(FadeOut(all_group))
-        example_header_tex = Tex("example of BFS graph mode with goal test ","on node creation time")
+        example_header_tex = Tex("let's see an example of BFS graph search","with goal test on node creation")
         example_header_tex[0].move_to([0,0,0])
         example_header_tex[1].next_to(example_header_tex[0],DOWN)
         self.play(Write(example_header_tex))
@@ -267,24 +267,24 @@ class DFS_graph_search(MovingCameraScene):
         return VGroup(header,writer,line)
         
     def start_up_actions(self):
-        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\Isla De Flores Berlioz (mp3cut.net).m4a"
+        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\\bensound-creativeminds (mp3cut.net).mp3"
         self.add_sound(sound_path)
         opening = self.introduction()
         self.play(FadeOut(opening))
         self.wait(0.5)
         explanation = Tex("\\begin{flushleft}Steps : \\end{flushleft}",
-        "\\begin{flushleft}1. add root to frontier\\end{flushleft} ",
-        "\\begin{flushleft}2. if frontier is empty there is no answer of this graph\\end{flushleft} ",
-        "\\begin{flushleft} 3. pop out deepest node from frontier and add it to explored set  \\end{flushleft}", 
-        "\\begin{flushleft} 4. find all child nodes from selected node and add them to frontier \\newline except repetitive nodes that are in explored or frontier sets \\newline \\end{flushleft}",
-        "\\begin{flushleft} 5. check if new nodes are our target :  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
+        "\\begin{flushleft} 1. add root to frontier\\end{flushleft} ",
+        "\\begin{flushleft} 2. if frontier is empty there is no answer for this graph\\end{flushleft} ",
+        "\\begin{flushleft} 3. pop out deepest node from frontier and add it to the explored set  \\end{flushleft}", 
+        "\\begin{flushleft} 4. find all child nodes from selected node and add them to the frontier \\newline except repetitive nodes that are in the explored or frontier sets \\newline \\end{flushleft}",
+        "\\begin{flushleft} 5. check if new nodes include the target node:  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
     
         explanation.scale(0.75)
         explanation.to_corner(UL)
-        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} is True} : \\newline \\space return the way from root to target \\newline 4.2. else repeat 2 to 5\\end{flushleft}")
+        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red}True}: \\newline \\space return the path \\newline 4.2. else repeat steps 2 to 5\\end{flushleft}")
         rules.scale(0.75)
-        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.5)
-        brace = Brace(rules,direction=LEFT)
+        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.7)
+        brace = Brace(rules,direction=LEFT,buff=0.1)
         times = [0.7,3,4,4,5.5,2]
         finished_time_delay = [0,1.5,1.5,1.5,3,1.5]
         for i in range(len(explanation)):
@@ -295,7 +295,7 @@ class DFS_graph_search(MovingCameraScene):
         self.wait(3)
         all_group = VGroup(brace,explanation,rules)
         self.play(FadeOut(all_group))
-        example_header_tex = Tex("example of DFS graph mode with goal test ","on node creation time")
+        example_header_tex = Tex("let's see an example of DFS graph search","with goal test on node creation")
         example_header_tex[0].move_to([0,0,0])
         example_header_tex[1].next_to(example_header_tex[0],DOWN)
         self.play(Write(example_header_tex))
@@ -428,7 +428,7 @@ class IDS_graph_search(MovingCameraScene):
         return output , group.animate.shift(UP*between_Text_gaps)
 
     def introduction(self):
-        header = Tex("Iterative deeping Search Algorithm")
+        header = Tex("Iterative deepening Search Algorithm")
         header.set_width(8)
         from_pos = [header.get_left()[0] - 1, header.get_bottom()[1]-0.5,0]
         to_pos = [header.get_right()[0] + 1, header.get_bottom()[1]-0.5,0]
@@ -444,24 +444,24 @@ class IDS_graph_search(MovingCameraScene):
         return VGroup(header,writer,line)
         
     def start_up_actions(self):
-        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\Isla De Flores Berlioz.m4a"
+        sound_path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\sounds\\bensound-inspire (mp3cut.net).mp3"
         self.add_sound(sound_path)
         opening = self.introduction()
         self.play(FadeOut(opening))
         self.wait(0.5)
         explanation = Tex("\\begin{flushleft}Steps : \\end{flushleft}",
-        "\\begin{flushleft}1. add root to frontier   \\end{flushleft} ",
-        "\\begin{flushleft}2. if frontier is empty there increament depth limit and do steps again\\end{flushleft} ",
-        "\\begin{flushleft} 3. pop out deepest node from frontier and add it to explored set  \\end{flushleft}", 
-        "\\begin{flushleft} 4. find all child nodes from selected node and add them to frontier \\newline except nodes with depth limit or repetitive nodes that are in explored or frontier sets \\newline \\end{flushleft}",
-        "\\begin{flushleft} 5. check if new nodes are our target :  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
+        "\\begin{flushleft} 1. add root to frontier   \\end{flushleft} ",
+        "\\begin{flushleft} 2. if frontier is empty then increament depth limit and do steps again\\end{flushleft} ",
+        "\\begin{flushleft} 3. pop out deepest node from frontier and add it to the explored set  \\end{flushleft}", 
+        "\\begin{flushleft} 4. find all child nodes from selected node and add them to the frontier \\newline except nodes with depth limit or repetitive nodes that are in the explored or frontier sets \\newline \\end{flushleft}",
+        "\\begin{flushleft} 5. check if new nodes include the target node:  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
     
         explanation.scale(0.75)
         explanation.to_corner(UL)
-        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} is True} : \\newline \\space return the way from root to target \\newline 4.2. else repeat 2 to 5\\end{flushleft}")
+        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red}True}: \\newline \\space return the path \\newline 4.2. else repeat steps 2 to 5\\end{flushleft}")
         rules.scale(0.75)
-        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.5)
-        brace = Brace(rules,direction=LEFT)
+        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.7)
+        brace = Brace(rules,direction=LEFT,buff=0.1)
         times = [0.7,3,4,4,5.5,2]
         finished_time_delay = [0,1.5,1.5,1.5,3,1.5]
         for i in range(len(explanation)):
@@ -472,7 +472,7 @@ class IDS_graph_search(MovingCameraScene):
         self.wait(2)
         all_group = VGroup(brace,explanation,rules)
         self.play(FadeOut(all_group))
-        example_header_tex = Tex("example of IDS graph mode with goal test ","on node creation time")
+        example_header_tex = Tex("let's see an example of IDS graph search","with goal test on node creation")
         example_header_tex[0].move_to([0,0,0])
         example_header_tex[1].next_to(example_header_tex[0],DOWN)
         self.play(Write(example_header_tex))
@@ -508,7 +508,7 @@ class IDS_graph_search(MovingCameraScene):
         RIGHT_X_AREA = 5.5
 
         depth_level = 1
-        depth_level_Tex = Tex("depth limit : 1")
+        depth_level_Tex = Tex("depth limit: 1")
         depth_level_Tex.move_to([0.25,sample_graph.get_top()[1]-0.25,0])
         self.play(Write(depth_level_Tex))
         frontier = []
@@ -535,7 +535,7 @@ class IDS_graph_search(MovingCameraScene):
                 depth_level += 1
                 for i in explored_text:
                     new_elemets.add(i)
-                new_tex = Tex("depth limit : "+ str(depth_level))
+                new_tex = Tex("depth limit: "+ str(depth_level))
                 new_tex.move_to([0.25,sample_graph.get_top()[1]-0.25,0])
                 self.play(Transform(depth_level_Tex,new_tex),FadeOut(new_elemets))
 
