@@ -1,0 +1,9 @@
+4 2
+A B C D E F G H I
+0 0 0 0 0 0 0 0 0
+A B C F
+5 1 7
+B D E
+C E H
+D I
+E I G

@@ -2,6 +2,8 @@ from logging import root
 from manim import *
 import codecs
 import random
+
+from numpy import cos
 # from manimlib import *
 
 RANDOM_POSITINAL_ENABLE = True
@@ -26,6 +28,7 @@ class Node:
         self.arrow = None
         self.visual_shape.set_stroke(width=width,color=BLUE)
         self.visual_shape.set_color(node_color)
+        self.H = 0
     def set_pos(self,x,y):
         self.x = x
         self.y = y
@@ -48,6 +51,7 @@ class Graph:
         self.scale = scale
         self.map = {}
         self.nodes = {}
+        self.edges = {} # exp: {(A,B):2}
         if root is not None:
             self.map[root] = []
 
@@ -60,7 +64,9 @@ class Graph:
             new_node.order = self.branching_factors[new_node.depth]
             self.branching_factors[new_node.depth]+=1
             
-            
+    def add_edge_cost(self,from_node,to_node,cost):
+        self.edges[(from_node,to_node)] = cost
+        return
     
     def read_from_file(self,path):
         with codecs.open(path, 'r') as f:
@@ -84,7 +90,40 @@ class Graph:
                 links[len(links) -1] = links[len(links) -1].replace("\n","")
                 for j in range(1,len(links)):
                     self.insert(self.nodes[links[j]],self.nodes[links[0]])
-    
+
+    def read_from_file_with_edge_costs(self,path):
+        with codecs.open(path, 'r') as f:
+            Lines = f.readlines()
+            max_depth = int(Lines[0].split(" ")[0])
+            self.branching_factors = []
+            for i in range(max_depth):
+                self.branching_factors.append(0)
+
+            # adding nodes with hiuristic
+            all_nodes = Lines[1].split(" ")
+            Hiuristics = Lines[2].split(" ")
+            Hiuristics[len(Hiuristics) -1] = Hiuristics[len(Hiuristics) -1].replace("\n","")
+            all_nodes[len(all_nodes) -1] = all_nodes[len(all_nodes) -1].replace("\n","")
+
+            for j in range(0,len(all_nodes)):
+                self.nodes[all_nodes[j]] = Node(all_nodes[j],self.scale)
+                self.nodes[all_nodes[j]].random_index = random.randint(10,2000)
+                self.nodes[all_nodes[j]].H = Hiuristics[j]
+            self.root = self.nodes[all_nodes[0]]
+
+            # adding links between nodes with edge values
+            index = 0
+            for i in range(2,len(Lines),step=2):
+                links = Lines[i].split(" ")
+                edges = links[i + 1].split(" ")
+                edges[len(edges) -1] = edges[len(edges) -1].replace("\n","")
+                links[len(links) -1] = links[len(links) -1].replace("\n","")
+                for j in range(1,len(links)):
+                    self.insert(self.nodes[links[j]],self.nodes[links[0]])
+                    self.add_edge_cost(self.nodes[links[0]],self.nodes[links[j]],edges[j-1])
+                    
+        
+
     def show_complete_graph(self,scene,RIGHT_X_AREA,LEFT_X_AREA):
             y_bias = 3
             group = VGroup()
@@ -109,7 +148,7 @@ class Graph:
             for i in self.map:
                 nodes = self.map[i]
                 for j in nodes:
-                    arrow = Arrow([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
+                    arrow = Line([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
                     group.add(arrow)
                     # scene.add(arrow)
             return group
