@@ -97,16 +97,20 @@ class A_star_graph_search(MovingCameraScene):
 
         # opening = self.start_up_actions()
 
-        opening = None
         
 
         # path = input("enter path : ")
-        path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\input.txt"
+        path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\with edge input.txt"
         graph = GraphSystem.Graph(scale)
-        graph.read_from_file(path)
+        graph.read_from_file_with_edge_costs(path)
 
         # showing sample graph
         sample_graph = graph.show_complete_graph(self,STATIC_GRAPH_RIGHT_X_AREA,STATIC_GRAPH_LEFT_X_AREA)
+
+        self.add(sample_graph)
+        self.wait(3)
+        return
+
 
         sample_graph_animation(self,opening,sample_graph)
 

@@ -1,7 +1,8 @@
 4 2
-A B C D E F G H I
-A B C F
-B D E
-C E H
-D I
-E I G
+A B C D E F G H I J K L
+A B C D
+B E F
+C H I
+D J
+F G
+J K L

@@ -9,6 +9,8 @@ from numpy import cos
 RANDOM_POSITINAL_ENABLE = True
 POSITIONAL_RANDOMNESS = 0.2
 RANDOM_PRECESION = 1000
+y_bias = 3
+
 
 class Node:
 
@@ -52,6 +54,7 @@ class Graph:
         self.map = {}
         self.nodes = {}
         self.edges = {} # exp: {(A,B):2}
+        self.has_cost = False
         if root is not None:
             self.map[root] = []
 
@@ -92,6 +95,7 @@ class Graph:
                     self.insert(self.nodes[links[j]],self.nodes[links[0]])
 
     def read_from_file_with_edge_costs(self,path):
+        self.has_cost = True
         with codecs.open(path, 'r') as f:
             Lines = f.readlines()
             max_depth = int(Lines[0].split(" ")[0])
@@ -108,14 +112,14 @@ class Graph:
             for j in range(0,len(all_nodes)):
                 self.nodes[all_nodes[j]] = Node(all_nodes[j],self.scale)
                 self.nodes[all_nodes[j]].random_index = random.randint(10,2000)
-                self.nodes[all_nodes[j]].H = Hiuristics[j]
+                self.nodes[all_nodes[j]].H = int(Hiuristics[j])
             self.root = self.nodes[all_nodes[0]]
 
             # adding links between nodes with edge values
             index = 0
-            for i in range(2,len(Lines),step=2):
+            for i in range(3,len(Lines),2):
                 links = Lines[i].split(" ")
-                edges = links[i + 1].split(" ")
+                edges = Lines[i + 1].split(" ")
                 edges[len(edges) -1] = edges[len(edges) -1].replace("\n","")
                 links[len(links) -1] = links[len(links) -1].replace("\n","")
                 for j in range(1,len(links)):
@@ -125,7 +129,6 @@ class Graph:
         
 
     def show_complete_graph(self,scene,RIGHT_X_AREA,LEFT_X_AREA):
-            y_bias = 3
             group = VGroup()
             # adding nodes
             for i in self.nodes:
@@ -150,11 +153,26 @@ class Graph:
                 for j in nodes:
                     arrow = Line([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
                     group.add(arrow)
+                    if self.has_cost:
+                        cost = Tex(str(self.edges[(i,j)]))
+                        cost.scale(self.scale)
+                        
+                        a = ( float(i.y - j.y) / float(i.x - j.x) )
+                        vertical_perpendicular = -1.0 / a
+                        center = (np.array([i.x,i.y,0]) + np.array([j.x,j.y,0])) / 2
+                    
+                
+                        
+                        target_point = [center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0]
+                        temp = Line(center,target_point,stroke_width=1)
+                        cost.move_to(target_point)
+                        group.add(cost)
+                        group.add(temp)
+
                     # scene.add(arrow)
             return group
     
     def get_node_relative_pos(self,node,RIGHT_X_AREA,LEFT_X_AREA):
-        y_bias = 3
         current_y_point = float(y_bias - (self.scale*2 + self.scale) * node.depth)
 
         current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2

@@ -107,6 +107,8 @@ class BFS_graph_search(MovingCameraScene):
         # showing sample graph
         sample_graph = graph.show_complete_graph(self,STATIC_GRAPH_RIGHT_X_AREA,STATIC_GRAPH_LEFT_X_AREA)
 
+        
+
         sample_graph_animation(self,opening,sample_graph)
 
         # Start BFS
