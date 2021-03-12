@@ -38,10 +38,13 @@ def sample_graph_animation(scene,opening,sample_graph):
     scene.play(Transform(opening,sample_graph))
     scene.wait(1.5)
     scene.remove(opening)
-    scene.play(sample_graph.animate.scale(STATIC_GRAPH_MIN_SCALE))
-    scene.play(sample_graph.animate.to_edge(UL))
+    scene.play(sample_graph.animate.scale(STATIC_GRAPH_MIN_SCALE).to_edge(UL))
     scene.wait(0.5)
     scene.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph)))
+
+
+ 
+
 
 def show_ending(self):
     

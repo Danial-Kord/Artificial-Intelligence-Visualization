@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import copy
+from random import sample
+
+from numpy.core.fromnumeric import size
 from GlobalFunctions import*
 from manim import *
 # from manimlib import *
@@ -13,31 +16,81 @@ scale = 0.5
 
 
 
+LEFT_SCREEN_BOUND = -7.5
 
 
 STATIC_GRAPH_LEFT_X_AREA = -2
 STATIC_GRAPH_RIGHT_X_AREA = 6
 NODES_SCALE = 1.5
+between_Text_gaps = 0.3
+TABLE_TEXT_SIZE = 0.6
 
-
+STATIC_GRAPH_MIN_SCALE = 0.5
+STATIC_TABLE_MIN_SCALE = 0.7
 
 
 #--------------------------------------------------------- BFS ------------------------------------------------------------------
 
 class A_star_graph_search(MovingCameraScene):
 
+    def make_table(scene,sample_graph,nodes):
 
-    def explored_table_text_add(self,array,frontier_array,end_pos,start_pos):
-        # new_text = text.copy()
-        text_obj = frontier_array.pop(0)
-        output = text_obj.animate.move_to(end_pos)
         group = VGroup()
-        for i in frontier_array:
-            group.add(i)
-        array.append(text_obj)
-        end_pos[1]-= between_Text_gaps
-        start_pos[1] += between_Text_gaps
-        return output , group.animate.shift(UP*between_Text_gaps)
+        top_pos = sample_graph.get_left()
+       
+        top_pos[1] = sample_graph.get_top()[1]-1
+
+        right_pos = [sample_graph.get_left()[0]-0.2,top_pos[1]-1,0]
+        left_pos = [LEFT_SCREEN_BOUND,top_pos[1]-1,0]
+
+        top_pos[0] = ((right_pos[0] + left_pos[0])/2)
+
+        bottom_pos = [top_pos[0],top_pos[1] - (len(nodes.keys()) *(TABLE_TEXT_SIZE) + (top_pos[1] - right_pos[1])),0]
+
+        vertical_line = Line(top_pos,bottom_pos)
+        horizantal_line = Line(left_pos,right_pos)
+
+        group.add(vertical_line,horizantal_line)
+        scene.add(vertical_line,horizantal_line)
+
+        Node_header_text = Text("Node",size=TABLE_TEXT_SIZE)
+        cost_header_text = Text("Hiuristic",size=TABLE_TEXT_SIZE)
+        x1 = horizantal_line.get_bottom()
+        x2 = horizantal_line.get_bottom()
+        x1[0] = (x1[0] + horizantal_line.get_right()[0]) / 2
+        x2[0] = (x2[0] + horizantal_line.get_left()[0]) / 2
+        x1[1] += between_Text_gaps
+        x2[1] += between_Text_gaps
+        Node_header_text.move_to(x2)
+        cost_header_text.move_to(x1)
+        group.add(Node_header_text,cost_header_text)
+        scene.add(Node_header_text,cost_header_text)
+
+        for i in nodes:
+            x1[1] -= between_Text_gaps*2
+            x2[1] -= between_Text_gaps*2
+            node = nodes[i]
+            node_name = Text(node.name,size=TABLE_TEXT_SIZE)
+            huristic = Text(str(node.H),size=TABLE_TEXT_SIZE)
+            node_name.move_to(x2)
+            huristic.move_to(x1)
+            scene.add(node_name,huristic)
+            group.add(node_name,huristic)
+        table_text = Tex("Huristic Table")
+        table_text.next_to(group,UP)
+        scene.add(table_text)
+        group.add(table_text)
+        return group
+
+    def sample_graph_animation(scene,opening,sample_graph,table):
+        scene.play(Transform(opening,sample_graph))
+        scene.wait(1.5)
+        scene.remove(opening)
+        scene.play(sample_graph.animate.scale(STATIC_GRAPH_MIN_SCALE).to_edge(UR),runtime=2)
+        scene.play(table.animate.scale(STATIC_TABLE_MIN_SCALE).next_to(sample_graph,DOWN))
+        scene.wait(0.5)
+        scene.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph,LEFT)))
+
 
     def introduction(self):
         header = Tex("A* Graph Search Algorithm")
@@ -108,11 +161,17 @@ class A_star_graph_search(MovingCameraScene):
         sample_graph = graph.show_complete_graph(self,STATIC_GRAPH_RIGHT_X_AREA,STATIC_GRAPH_LEFT_X_AREA)
 
         self.add(sample_graph)
+        table = self.make_table(sample_graph,graph.nodes)
         self.wait(3)
+
+        tt = Circle()
+        self.sample_graph_animation(tt,sample_graph,table)
+
+
         return
 
 
-        # sample_graph_animation(self,opening,sample_graph)
+        
 
         # Start BFS
         frontier_text_pos , explored_text_pos = build_table(self,sample_graph)
