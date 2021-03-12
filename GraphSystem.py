@@ -160,14 +160,16 @@ class Graph:
                         a = ( float(i.y - j.y) / float(i.x - j.x) )
                         vertical_perpendicular = -1.0 / a
                         center = (np.array([i.x,i.y,0]) + np.array([j.x,j.y,0])) / 2
-                    
-                
+                        target_point = np.array([center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0])
                         
-                        target_point = [center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0]
-                        temp = Line(center,target_point,stroke_width=1)
-                        cost.move_to(target_point)
+                        vector = np.array(target_point - center)
+                        vector = normalize(vector)
+                        
+                        # temp = Line(center,target_point,stroke_width=1)
+                        cost.move_to(center)
+                        cost.shift(vector*0.2)
                         group.add(cost)
-                        group.add(temp)
+                        # group.add(temp)
 
                     # scene.add(arrow)
             return group

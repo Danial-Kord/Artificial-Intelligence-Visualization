@@ -15,8 +15,8 @@ scale = 0.5
 
 
 
-STATIC_GRAPH_LEFT_X_AREA = -4
-STATIC_GRAPH_RIGHT_X_AREA = 4
+STATIC_GRAPH_LEFT_X_AREA = -2
+STATIC_GRAPH_RIGHT_X_AREA = 6
 NODES_SCALE = 1.5
 
 
@@ -112,7 +112,7 @@ class A_star_graph_search(MovingCameraScene):
         return
 
 
-        sample_graph_animation(self,opening,sample_graph)
+        # sample_graph_animation(self,opening,sample_graph)
 
         # Start BFS
         frontier_text_pos , explored_text_pos = build_table(self,sample_graph)
