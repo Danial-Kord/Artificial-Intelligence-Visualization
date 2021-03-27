@@ -1,4 +1,4 @@
-from logging import root
+import copy
 from manim import *
 import codecs
 import random
@@ -31,6 +31,7 @@ class Node:
         self.visual_shape.set_stroke(width=width,color=BLUE)
         self.visual_shape.set_color(node_color)
         self.H = 0
+        self.seen = False
     def set_pos(self,x,y):
         self.x = x
         self.y = y
@@ -44,7 +45,13 @@ class Node:
     def set_dad(self,node,arrow):
         self.dad = node
         self.arrow = arrow
-        
+
+    def set_huristic(self,cost):
+        self.H = cost
+        self.calculated_cost = cost
+
+    def set_calculated_cost(self,cost):
+        self.calculated_cost = cost
 
 
 class Graph:
@@ -61,14 +68,16 @@ class Graph:
     def insert(self,new_node,old_node):
         if not self.map.keys().__contains__(old_node):
             self.map[old_node] = []
-        (self.map[old_node]).append(new_node)
+        if not (self.map[old_node]).__contains__(new_node):
+            (self.map[old_node]).append(new_node)
         if new_node.depth == 0:
             new_node.depth = old_node.depth+1
             new_node.order = self.branching_factors[new_node.depth]
             self.branching_factors[new_node.depth]+=1
+        new_node.parent = old_node
             
     def add_edge_cost(self,from_node,to_node,cost):
-        self.edges[(from_node,to_node)] = cost
+        self.edges[from_node,to_node] = cost
         return
     
     def read_from_file(self,path):
@@ -76,7 +85,7 @@ class Graph:
             Lines = f.readlines()
             max_depth = int(Lines[0].split(" ")[0])
             self.branching_factors = []
-            for i in range(max_depth):
+            for i in range(max_depth*2+1):
                 self.branching_factors.append(0)
 
             all_nodes = Lines[1].split(" ")
@@ -100,7 +109,7 @@ class Graph:
             Lines = f.readlines()
             max_depth = int(Lines[0].split(" ")[0])
             self.branching_factors = []
-            for i in range(max_depth):
+            for i in range(max_depth*2+1):
                 self.branching_factors.append(0)
 
             # adding nodes with hiuristic
@@ -112,7 +121,7 @@ class Graph:
             for j in range(0,len(all_nodes)):
                 self.nodes[all_nodes[j]] = Node(all_nodes[j],self.scale)
                 self.nodes[all_nodes[j]].random_index = random.randint(10,2000)
-                self.nodes[all_nodes[j]].H = int(Hiuristics[j])
+                self.nodes[all_nodes[j]].set_huristic(int(Hiuristics[j]))
             self.root = self.nodes[all_nodes[0]]
 
             # adding links between nodes with edge values
@@ -124,7 +133,7 @@ class Graph:
                 links[len(links) -1] = links[len(links) -1].replace("\n","")
                 for j in range(1,len(links)):
                     self.insert(self.nodes[links[j]],self.nodes[links[0]])
-                    self.add_edge_cost(self.nodes[links[0]],self.nodes[links[j]],edges[j-1])
+                    self.add_edge_cost(self.nodes[links[0]],self.nodes[links[j]],int(edges[j-1]))
                     
         
 
@@ -158,6 +167,8 @@ class Graph:
                         cost.scale(self.scale)
                         
                         a = ( float(i.y - j.y) / float(i.x - j.x) )
+                        if a == 0:
+                            a = 0.000000001
                         vertical_perpendicular = -1.0 / a
                         center = (np.array([i.x,i.y,0]) + np.array([j.x,j.y,0])) / 2
                         target_point = np.array([center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0])
@@ -174,13 +185,65 @@ class Graph:
                     # scene.add(arrow)
             return group
     
+    def make_nodes_connected_bi_directional(self):
+        map = copy.deepcopy(self.map)
+        index = 1
+        for i in map:
+            for j in map[i]:
+                check = True
+                if map.keys().__contains__(j) and (map[j]).__contains__(i):
+                    check = False
+                if check:
+                    original = self.nodes[j.name]
+                                        
+                    node = copy.deepcopy(i)
+                    node.depth = 0
+                    self.nodes[node.name + str(index)] = node
+                    index+=1
+                    # node.graphics = j.graphics
+                    # node.visual_shape = j.visual_shape
+                    # node.visual_name = j.visual_name
+                    self.insert(node,original)
+                    print("  " + i.name+"   " + original.name)
+                    for x,z in self.edges:
+                        if x.name == node.name and z.name == original.name:
+                            print("we did it" + "  " + original.name+"   " + node.name)
+                            self.add_edge_cost(original,node,self.edges[x,z])
+                            break
+        self.graph_cleaner()
+    
+    def graph_cleaner(self):
+        map = self.map
+        for i in map:
+            for j in map[i]:
+                order = j.order
+                depth = j.depth
+                parent_order = j.parent.order
+                for k in map:
+                    for l in map[k]:
+                        if l.depth == depth:
+                            if l.parent is not None and l.parent.order > parent_order and l.order < order:
+                                j.order -= 1
+                                l.order += 1
+
+
+
+                    
+
+
     def get_node_relative_pos(self,node,RIGHT_X_AREA,LEFT_X_AREA):
-        current_y_point = float(y_bias - (self.scale*2 + self.scale) * node.depth)
+         return self.get_node_relative_pos2(self.branching_factors[node.depth],node.order,node.depth,RIGHT_X_AREA,LEFT_X_AREA)
+
+    def get_node_relative_pos2(self,branching_factor,order,depth,RIGHT_X_AREA,LEFT_X_AREA):
+        current_y_point = float(y_bias - (self.scale*2 + self.scale) * depth)
 
         current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
-        if self.branching_factors[node.depth] > 1:
-            current_x_point = float(LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order)
+        if branching_factor > 1:
+            current_x_point = float(LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (branching_factor-1))*order)
             if RANDOM_POSITINAL_ENABLE:
                 # random.seed(node.random_index)
                 current_x_point += (float(random.randint(-RANDOM_PRECESION*POSITIONAL_RANDOMNESS,RANDOM_PRECESION*POSITIONAL_RANDOMNESS))) / (RANDOM_PRECESION)
         return [current_x_point,current_y_point,0]
+
+    def set_node_cost_tex(self,cost_tex):
+        self.cost_tex = cost_tex

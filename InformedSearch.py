@@ -144,7 +144,10 @@ class A_star_graph_search(MovingCameraScene):
         self.wait(1)
         return example_header_tex
 
-
+    def print_node_cost(self,node,cost,direction=DOWN):
+        cost_tex = Tex(cost)
+        cost_tex.next_to(node,direction)
+        return cost_tex
 
     def construct(self):
 
@@ -159,6 +162,7 @@ class A_star_graph_search(MovingCameraScene):
 
         # showing sample graph
         sample_graph = graph.show_complete_graph(self,STATIC_GRAPH_RIGHT_X_AREA,STATIC_GRAPH_LEFT_X_AREA)
+        
 
         self.add(sample_graph)
         table = self.make_table(sample_graph,graph.nodes)
@@ -166,78 +170,91 @@ class A_star_graph_search(MovingCameraScene):
 
         tt = Circle()
         self.sample_graph_animation(tt,sample_graph,table)
+        graph.make_nodes_connected_bi_directional()
 
 
-        return
 
 
-        
+        # make A* graph search
 
-        # Start BFS
-        frontier_text_pos , explored_text_pos = build_table(self,sample_graph)
+        # A_Start_Graph = GraphSystem.Graph(scale)
+        # A_Start_Graph
+
+
+        # Start search
 
         clone_graph = copy.deepcopy(graph)
         draw_root = clone_graph.root.graphics
-        LEFT_X_AREA = sample_graph.get_width() + sample_graph.get_center()[0] + 0.5
-        RIGHT_X_AREA = 5.5
+        LEFT_X_AREA = LEFT_SCREEN_BOUND+1 
+        RIGHT_X_AREA = sample_graph.get_center()[0] - (sample_graph.get_width() +  + 0.5)
 
 
         frontier = []
-        explored = []
         way = []
-        frontier_text = []
-        explored_text = []
 
 
-        self.play(Write(frontier_table_text_add(frontier_text,clone_graph.root.name,frontier_text_pos))
-        ,draw_root.animate.move_to(clone_graph.get_node_relative_pos(clone_graph.root,RIGHT_X_AREA,LEFT_X_AREA)))
+        self.play(draw_root.animate.move_to(clone_graph.get_node_relative_pos(clone_graph.root,RIGHT_X_AREA,LEFT_X_AREA)).scale(NODES_SCALE))
         draw_root.set_color(BLUE_A)
-        self.play(draw_root.animate.scale(NODES_SCALE))
 
         frontier.append(clone_graph.root)
         check = True
+
+
         while(check):
             if len(frontier) == 0:
                 break
-            expand_node = frontier.pop(0)
-            anim1,anim2 = self.explored_table_text_add(explored_text,frontier_text,explored_text_pos,frontier_text_pos)
-            self.play(anim1,anim2)
-            explored.append(expand_node)
+            min = frontier[0].calculated_cost
+            selected_frontier_index = 0
+            for i in range(len(frontier)):
+                if frontier[i].calculated_cost < min:
+                    min = frontier[i].calculated_cost
+                    selected_frontier_index = i
+            expand_node = frontier.pop(selected_frontier_index)
+            
             self.play(expand_node.visual_shape.animate.set_color(YELLOW))
             self.wait(0.7)
+            if expand_node.name == "G":
+                temp = expand_node
+                while temp.dad is not None:
+                    way.append(temp)
+                    temp = temp.dad
+                way.append(temp)
+                way.reverse()
+                for j in way:
+                    circle = j.visual_shape.copy()
+                    circle.set_stroke(width= circle.get_stroke_width()*1.8,color = GREEN_C)
+                    circle.shift([0,0,1])
+                    if j.arrow is not None:
+                        arrow = j.arrow
+                        self.play(arrow.animate.set_color(GREEN_D))
+                    self.play(ShowCreation(circle))
+                    self.wait(0.5)
+                check = False
+                break
             if clone_graph.map.__contains__(expand_node):
                 for i in clone_graph.map[expand_node]:
-                    if i in explored or i in frontier:
-                        continue
+                    for x,y in clone_graph.edges:
+                        if x.name == expand_node.name and y.name == i.name:
+                           i.set_calculated_cost(i.calculated_cost+clone_graph.edges[x,y])
+                           break
                     frontier.append(i)
                     draw_root = i.graphics
-                    pos = clone_graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
-                    self.play(Write(frontier_table_text_add(frontier_text,i.name,frontier_text_pos))
-                        ,draw_root.animate.move_to(pos))
-                    draw_root.set_color(BLUE_A)
-                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()*NODES_SCALE/2,color=YELLOW)
+                    arrow = None
+                    if i.seen is False:
+                        pos = clone_graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
+                        self.play(draw_root.animate.move_to(pos))
+                        draw_root.set_color(BLUE_A)
+                        arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()*NODES_SCALE/2,color=YELLOW)
+                        i.seen = True
+                        self.play(Write(arrow),draw_root.animate.scale(NODES_SCALE))
+                    else:
+                        arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()/2,color=YELLOW)
+                        self.play(Write(arrow))
+                    self.wait(0.6)                    
                     i.set_dad(expand_node,arrow)
                     
-                    self.play(Write(arrow),draw_root.animate.scale(NODES_SCALE))
-                    self.wait(1)
-                    if i.name == "G":
-                        temp = i
-                        while temp.dad is not None:
-                            way.append(temp)
-                            temp = temp.dad
-                        way.append(temp)
-                        way.reverse()
-                        for j in way:
-                            circle = j.visual_shape.copy()
-                            circle.set_stroke(width= circle.get_stroke_width()*1.8,color = GREEN_C)
-                            circle.shift([0,0,1])
-                            if j.arrow is not None:
-                                arrow = j.arrow
-                                self.play(arrow.animate.set_color(GREEN_D))
-                            self.play(ShowCreation(circle))
-                            self.wait(0.5)
-                        check = False
-                        break
+
+
 
         self.wait(1)
         show_ending(self)
