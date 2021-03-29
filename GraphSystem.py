@@ -64,16 +64,23 @@ class Graph:
         self.nodes = {}
         self.edges = {} # exp: {(A,B):2}
         self.visual_edges = {}
+        self.branching_factors = []
         self.has_cost = False
         if root is not None:
             self.map[root] = []
+
+    def creat_new_node(self,name):
+        node = Node(name,self.scale)
+        self.nodes[name] = node
+        self.nodes[name].random_index = random.randint(10,2000)     
+        return node
 
     def insert(self,new_node,old_node,No_duplicate = False):
         if not self.map.keys().__contains__(old_node):
             self.map[old_node] = []
         if not (self.map[old_node]).__contains__(new_node):
             (self.map[old_node]).append(new_node)
-        if new_node.depth == 0:
+        if new_node.depth == 0 and new_node is not self.root:
             new_node.depth = old_node.depth+1
             new_node.order = self.branching_factors[new_node.depth]
             self.branching_factors[new_node.depth]+=1
@@ -100,8 +107,7 @@ class Graph:
             all_nodes[len(all_nodes) -1] = all_nodes[len(all_nodes) -1].replace("\n","")
 
             for j in range(0,len(all_nodes)):
-                self.nodes[all_nodes[j]] = Node(all_nodes[j],self.scale)
-                self.nodes[all_nodes[j]].random_index = random.randint(10,2000)
+                self.creat_new_node(all_nodes[j])
             self.root = self.nodes[all_nodes[0]]
             # adding links between nodes
             index = 0
@@ -127,8 +133,7 @@ class Graph:
             all_nodes[len(all_nodes) -1] = all_nodes[len(all_nodes) -1].replace("\n","")
 
             for j in range(0,len(all_nodes)):
-                self.nodes[all_nodes[j]] = Node(all_nodes[j],self.scale)
-                self.nodes[all_nodes[j]].random_index = random.randint(10,2000)
+                self.creat_new_node(all_nodes[j])
                 self.nodes[all_nodes[j]].set_huristic(int(Hiuristics[j]))
             self.root = self.nodes[all_nodes[0]]
 
@@ -195,30 +200,30 @@ class Graph:
             return group
     
     def make_nodes_connected_bi_directional(self):
-        repeat = True
-        map = self.map
-        while(repeat):
-            try:
-                repeat = False
-                for i in map:
-                    dad = i
-                    for j in map[i]:
-                        son = j
-                        for d in map:
-                            for q in map[d]:
-                                if q == son and d.name != dad.name:
-                                    clone = copy.deepcopy(q)
-                                    clone.depth = 0
-                                    map[d].remove(q)
-                                    self.insert(clone,d)
-                                    repeat = True
-                                    for x,z in self.edges:
-                                        if x.name == d.name and z.name == q.name:
-                                            self.add_edge_cost(d,clone,self.edges[x,z])
-                                            break
+        # repeat = True
+        # map = self.map
+        # while(repeat):
+        #     try:
+        #         repeat = False
+        #         for i in map:
+        #             dad = i
+        #             for j in map[i]:
+        #                 son = j
+        #                 for d in map:
+        #                     for q in map[d]:
+        #                         if q == son and d.name != dad.name:
+        #                             clone = copy.deepcopy(q)
+        #                             clone.depth = 0
+        #                             map[d].remove(q)
+        #                             self.insert(clone,d)
+        #                             repeat = True
+        #                             for x,z in self.edges:
+        #                                 if x.name == d.name and z.name == q.name:
+        #                                     self.add_edge_cost(d,clone,self.edges[x,z])
+        #                                     break
 
-            except:
-                print("cleaning")
+        #     except:
+        #         print("cleaning")
         map = copy.deepcopy(self.map)
         index = 1
         for i in map:
@@ -229,10 +234,11 @@ class Graph:
                 if check:
                     original = self.nodes[j.name]
                                         
-                    node = copy.deepcopy(i)
-                    node.depth = 0
-                    self.nodes[node.name + str(index)] = node
-                    index+=1
+                    # node = copy.deepcopy(i)
+                    node = self.nodes[i.name]
+                    # node.depth = 0
+                    # self.nodes[node.name + str(index)] = node
+                    # index+=1
                     # node.graphics = j.graphics
                     # node.visual_shape = j.visual_shape
                     # node.visual_name = j.visual_name

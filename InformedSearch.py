@@ -177,18 +177,57 @@ class A_star_graph_search(MovingCameraScene):
 
         # make A* graph search
 
-        # A_Start_Graph = GraphSystem.Graph(scale)
-        # A_Start_Graph
+        all_nodes = []
+        frontier = []
+
+        new_graph = GraphSystem.Graph(scale)
+        for i in range(len(graph.branching_factors)):
+            new_graph.branching_factors.append(0)
+        root = copy.deepcopy(graph.root)
+        new_graph.root = root
+        
+        new_graph.root.calculated_cost = 0
+        frontier.append(new_graph.root)
+        all_nodes.append(frontier[0])
+        while(True):
+            if len(frontier) == 0:
+                break
+            min = frontier[0].calculated_cost + frontier[0].H
+            selected_frontier_index = 0
+            for i in range(len(frontier)):
+                if frontier[i].calculated_cost + frontier[i].H < min:
+                    min = frontier[i].calculated_cost + frontier[i].H
+                    selected_frontier_index = i
+            expand_node = frontier.pop(selected_frontier_index)
+            real_expand_node = graph.nodes[expand_node.name]
+
+            if expand_node.name == "G":
+                break
+            if graph.map.__contains__(real_expand_node):
+                for i in graph.map[real_expand_node]:
+                    new_node = copy.deepcopy(i)
+                    new_node.depth = 0
+                    new_graph.insert(new_node,expand_node)
+                    frontier.append(new_node)
+                    all_nodes.append(new_node)
+                    for x,y in graph.edges:
+                        if x.name == expand_node.name and y.name == new_node.name:
+                            new_graph.add_edge_cost(expand_node,new_node,graph.edges[x,y])
+                            new_node.set_calculated_cost(expand_node.calculated_cost+graph.edges[x,y])  
+                            break        
 
 
+        for i in all_nodes:
+            i.calculated_cost = 0
         # Start search
-
-        clone_graph = copy.deepcopy(graph)
+        # new_graph.graph_cleaner()
+        clone_graph = copy.deepcopy(new_graph)
         draw_root = clone_graph.root.graphics
         LEFT_X_AREA = LEFT_SCREEN_BOUND+1 
         RIGHT_X_AREA = sample_graph.get_center()[0] - (sample_graph.get_width() +  + 0.5)
 
 
+        
         frontier = []
         way = []
 
