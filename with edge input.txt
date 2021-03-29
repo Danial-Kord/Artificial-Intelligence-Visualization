@@ -1,7 +1,13 @@
-2 2
-A B C D G
-0 0 0 0 0
+4 2
+A B C D F H G
+4 5 1 4 2 1 0
 A B C D
 5 1 7
+B C F H
+2 4 3
 D C G
 5 2
+F G
+3
+H G
+1

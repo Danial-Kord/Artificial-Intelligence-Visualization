@@ -31,6 +31,9 @@ class Node:
         self.visual_shape.set_stroke(width=width,color=BLUE)
         self.visual_shape.set_color(node_color)
         self.H = 0
+        self.calculated_cost = 0
+        self.visual_calculated_cost = None
+
         self.seen = False
     def set_pos(self,x,y):
         self.x = x
@@ -48,7 +51,6 @@ class Node:
 
     def set_huristic(self,cost):
         self.H = cost
-        self.calculated_cost = cost
 
     def set_calculated_cost(self,cost):
         self.calculated_cost = cost
@@ -61,11 +63,12 @@ class Graph:
         self.map = {}
         self.nodes = {}
         self.edges = {} # exp: {(A,B):2}
+        self.visual_edges = {}
         self.has_cost = False
         if root is not None:
             self.map[root] = []
 
-    def insert(self,new_node,old_node):
+    def insert(self,new_node,old_node,No_duplicate = False):
         if not self.map.keys().__contains__(old_node):
             self.map[old_node] = []
         if not (self.map[old_node]).__contains__(new_node):
@@ -74,6 +77,11 @@ class Graph:
             new_node.depth = old_node.depth+1
             new_node.order = self.branching_factors[new_node.depth]
             self.branching_factors[new_node.depth]+=1
+        elif No_duplicate:
+            new_node = copy.deepcopy(new_node)
+            new_node.depth = old_node.depth+1
+            new_node.order = self.branching_factors[new_node.depth]
+            self.branching_factors[new_node.depth]+=1 
         new_node.parent = old_node
             
     def add_edge_cost(self,from_node,to_node,cost):
@@ -163,12 +171,13 @@ class Graph:
                     arrow = Line([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
                     group.add(arrow)
                     if self.has_cost:
-                        cost = Tex(str(self.edges[(i,j)]))
+                        cost = Tex(str(self.edges[i,j]))
+                        self.visual_edges[i,j] = cost
                         cost.scale(self.scale)
                         
                         a = ( float(i.y - j.y) / float(i.x - j.x) )
                         if a == 0:
-                            a = 0.000000001
+                            a = 0.000000000001
                         vertical_perpendicular = -1.0 / a
                         center = (np.array([i.x,i.y,0]) + np.array([j.x,j.y,0])) / 2
                         target_point = np.array([center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0])
@@ -186,6 +195,30 @@ class Graph:
             return group
     
     def make_nodes_connected_bi_directional(self):
+        repeat = True
+        map = self.map
+        while(repeat):
+            try:
+                repeat = False
+                for i in map:
+                    dad = i
+                    for j in map[i]:
+                        son = j
+                        for d in map:
+                            for q in map[d]:
+                                if q == son and d.name != dad.name:
+                                    clone = copy.deepcopy(q)
+                                    clone.depth = 0
+                                    map[d].remove(q)
+                                    self.insert(clone,d)
+                                    repeat = True
+                                    for x,z in self.edges:
+                                        if x.name == d.name and z.name == q.name:
+                                            self.add_edge_cost(d,clone,self.edges[x,z])
+                                            break
+
+            except:
+                print("cleaning")
         map = copy.deepcopy(self.map)
         index = 1
         for i in map:
@@ -225,6 +258,10 @@ class Graph:
                             if l.parent is not None and l.parent.order > parent_order and l.order < order:
                                 j.order -= 1
                                 l.order += 1
+
+
+
+
 
 
 

@@ -203,11 +203,11 @@ class A_star_graph_search(MovingCameraScene):
         while(check):
             if len(frontier) == 0:
                 break
-            min = frontier[0].calculated_cost
+            min = frontier[0].calculated_cost + frontier[0].H
             selected_frontier_index = 0
             for i in range(len(frontier)):
-                if frontier[i].calculated_cost < min:
-                    min = frontier[i].calculated_cost
+                if frontier[i].calculated_cost + frontier[i].H < min:
+                    min = frontier[i].calculated_cost + frontier[i].H
                     selected_frontier_index = i
             expand_node = frontier.pop(selected_frontier_index)
             
@@ -233,10 +233,9 @@ class A_star_graph_search(MovingCameraScene):
                 break
             if clone_graph.map.__contains__(expand_node):
                 for i in clone_graph.map[expand_node]:
-                    for x,y in clone_graph.edges:
-                        if x.name == expand_node.name and y.name == i.name:
-                           i.set_calculated_cost(i.calculated_cost+clone_graph.edges[x,y])
-                           break
+                    if expand_node.visual_calculated_cost is not None:
+                        self.remove(expand_node.visual_calculated_cost)
+                        expand_node.visual_calculated_cost = None
                     frontier.append(i)
                     draw_root = i.graphics
                     arrow = None
@@ -250,8 +249,18 @@ class A_star_graph_search(MovingCameraScene):
                     else:
                         arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()/2,color=YELLOW)
                         self.play(Write(arrow))
-                    self.wait(0.6)                    
+                    self.wait(0.6)   
+
                     i.set_dad(expand_node,arrow)
+                    for x,y in clone_graph.edges:
+                        if x.name == expand_node.name and y.name == i.name:
+                           i.set_calculated_cost(expand_node.calculated_cost+clone_graph.edges[x,y])
+                           i.visual_calculated_cost = Tex("" + str(i.calculated_cost) + " + " + str(i.H) +" = "+str(i.calculated_cost+i.H))
+                           i.visual_calculated_cost.set_width(i.visual_shape.get_width())
+                           
+                           i.visual_calculated_cost.next_to(i.visual_shape,DOWN)
+                           self.play(Write(i.visual_calculated_cost))
+                           break
                     
 
 
