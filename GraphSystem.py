@@ -7,9 +7,9 @@ from numpy import cos
 # from manimlib import *
 
 RANDOM_POSITINAL_ENABLE = True
-POSITIONAL_RANDOMNESS = 0.2
+POSITIONAL_RANDOMNESS = 0.1
 RANDOM_PRECESION = 1000
-y_bias = 3
+y_bias = 3.55
 
 
 class Node:
@@ -31,6 +31,8 @@ class Node:
         self.visual_shape.set_stroke(width=width,color=BLUE)
         self.visual_shape.set_color(node_color)
         self.H = 0
+        self.visual_H = None
+        self.visual_H_name = None
         self.calculated_cost = 0
         self.visual_calculated_cost = None
 
@@ -148,15 +150,47 @@ class Graph:
                     self.insert(self.nodes[links[j]],self.nodes[links[0]])
                     self.add_edge_cost(self.nodes[links[0]],self.nodes[links[j]],int(edges[j-1]))
                     
-        
 
+    def set_edge_visual_tex(self,from_node,to_node,from_node_pos,to_node_pos,cost_str):
+        cost = Tex(cost_str)
+        cost.scale(self.scale)
+        from_node_x = from_node_pos[0]
+        from_node_y = from_node_pos[1]
+        to_node_x = to_node_pos[0]
+        to_node_y = to_node_pos[1]
+        a = ( float(from_node_y - to_node_y) / float(from_node_x - to_node_x) )
+        if a == 0:
+            a = 0.000000000001
+        vertical_perpendicular = -1.0 / a
+        center = (np.array([from_node_x,from_node_y,0]) + np.array([to_node_x,to_node_y,0])) / 2
+        target_point = np.array([center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0])
+        
+        vector = np.array(target_point - center)
+        vector = normalize(vector)
+        
+        # temp = Line(center,target_point,stroke_width=1)
+        cost.move_to(center)
+        cost.shift(vector*0.2)
+        self.visual_edges[from_node,to_node] = cost
+        return cost
+
+    def add_edge_visual_tex(self,from_node,to_node):
+        if self.has_cost:
+            return(self.set_edge_visual_tex(from_node,to_node,[from_node.x,from_node.y,0],[to_node.x,to_node.y,0],str(self.edges[from_node,to_node])))
+        return None
+            
     def show_complete_graph(self,scene,RIGHT_X_AREA,LEFT_X_AREA):
+            # top = 3
             group = VGroup()
+            # index = 0
             # adding nodes
             for i in self.nodes:
                 node = self.nodes[i]
                 current_y_point = y_bias - (self.scale*2 + self.scale) * node.depth
 
+                # if index == 0:
+                #     current_y_point = top - (self.scale*2 + self.scale) * node.depth
+                #     index = 1
                 current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
                 if self.branching_factors[node.depth] > 1:
                     current_x_point = LEFT_X_AREA + ((RIGHT_X_AREA - LEFT_X_AREA) / (self.branching_factors[node.depth]-1))*node.order
@@ -175,26 +209,9 @@ class Graph:
                 for j in nodes:
                     arrow = Line([i.x,i.y,0],[j.x,j.y,0],stroke_width=1,buff= self.scale)
                     group.add(arrow)
-                    if self.has_cost:
-                        cost = Tex(str(self.edges[i,j]))
-                        self.visual_edges[i,j] = cost
-                        cost.scale(self.scale)
-                        
-                        a = ( float(i.y - j.y) / float(i.x - j.x) )
-                        if a == 0:
-                            a = 0.000000000001
-                        vertical_perpendicular = -1.0 / a
-                        center = (np.array([i.x,i.y,0]) + np.array([j.x,j.y,0])) / 2
-                        target_point = np.array([center[0]+1,(center[0]+1.0)*vertical_perpendicular + (center[1] - (center[0]*vertical_perpendicular)),0])
-                        
-                        vector = np.array(target_point - center)
-                        vector = normalize(vector)
-                        
-                        # temp = Line(center,target_point,stroke_width=1)
-                        cost.move_to(center)
-                        cost.shift(vector*0.2)
+                    cost = self.add_edge_visual_tex(i,j)
+                    if cost is not None:
                         group.add(cost)
-                        # group.add(temp)
 
                     # scene.add(arrow)
             return group
@@ -248,6 +265,7 @@ class Graph:
                         if x.name == node.name and z.name == original.name:
                             print("we did it" + "  " + original.name+"   " + node.name)
                             self.add_edge_cost(original,node,self.edges[x,z])
+                            self.visual_edges[original,node] = self.visual_edges[node,original]
                             break
         self.graph_cleaner()
     

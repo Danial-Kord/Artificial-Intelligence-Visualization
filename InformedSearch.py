@@ -17,6 +17,7 @@ scale = 0.5
 
 
 LEFT_SCREEN_BOUND = -7.5
+DOWN_SCREEN_BOUND = -3.5
 
 
 STATIC_GRAPH_LEFT_X_AREA = -2
@@ -51,7 +52,7 @@ class A_star_graph_search(MovingCameraScene):
         horizantal_line = Line(left_pos,right_pos)
 
         group.add(vertical_line,horizantal_line)
-        scene.add(vertical_line,horizantal_line)
+        # scene.add(vertical_line,horizantal_line)
 
         Node_header_text = Text("Node",size=TABLE_TEXT_SIZE)
         cost_header_text = Text("Hiuristic",size=TABLE_TEXT_SIZE)
@@ -63,8 +64,12 @@ class A_star_graph_search(MovingCameraScene):
         x2[1] += between_Text_gaps
         Node_header_text.move_to(x2)
         cost_header_text.move_to(x1)
+
+        temp_group = VGroup(horizantal_line,cost_header_text,Node_header_text)
+        temp_group.shift(UP*0.3)
+
         group.add(Node_header_text,cost_header_text)
-        scene.add(Node_header_text,cost_header_text)
+        # scene.add(Node_header_text,cost_header_text)
 
         for i in nodes:
             x1[1] -= between_Text_gaps*2
@@ -72,22 +77,28 @@ class A_star_graph_search(MovingCameraScene):
             node = nodes[i]
             node_name = Text(node.name,size=TABLE_TEXT_SIZE)
             huristic = Text(str(node.H),size=TABLE_TEXT_SIZE)
+            node.visual_H = huristic
+            node.visual_H_name = node_name
             node_name.move_to(x2)
             huristic.move_to(x1)
-            scene.add(node_name,huristic)
+            # scene.add(node_name,huristic)
             group.add(node_name,huristic)
         table_text = Tex("Huristic Table")
         table_text.next_to(group,UP)
-        scene.add(table_text)
+        # scene.add(table_text)
         group.add(table_text)
         return group
 
     def sample_graph_animation(scene,opening,sample_graph,table):
-        scene.play(Transform(opening,sample_graph))
+        table.shift(DOWN)
+        sample_graph.shift(DOWN)
+        group = VGroup(table,sample_graph)
+        scene.play(Transform(opening,group))
+        scene.add(table,sample_graph)
         scene.wait(1.5)
         scene.remove(opening)
         scene.play(sample_graph.animate.scale(STATIC_GRAPH_MIN_SCALE).to_edge(UR),runtime=2)
-        scene.play(table.animate.scale(STATIC_TABLE_MIN_SCALE).next_to(sample_graph,DOWN))
+        scene.play(table.animate.scale(STATIC_TABLE_MIN_SCALE).next_to(sample_graph,DOWN,buff=1.2))
         scene.wait(0.5)
         scene.play(Write(Line([0,20,0],[0,-20,0]).next_to(sample_graph,LEFT)))
 
@@ -104,7 +115,7 @@ class A_star_graph_search(MovingCameraScene):
         self.play(Write(header),Write(line))
         self.wait(0.5)
         self.play(Write(writer))
-        self.wait(1)
+        self.wait(0.7)
         return VGroup(header,writer,line)
         
     def start_up_actions(self):
@@ -112,36 +123,35 @@ class A_star_graph_search(MovingCameraScene):
         self.add_sound(sound_path)
         opening = self.introduction()
         self.play(FadeOut(opening))
-        self.wait(0.5)
-        explanation = Tex("\\begin{flushleft}Steps: \\end{flushleft}",
-        "\\begin{flushleft} 1. add root to frontier  \\end{flushleft} ",
-        "\\begin{flushleft} 2. if frontier is empty there is no answer for this graph\\end{flushleft} ",
-        "\\begin{flushleft} 3. pop out from frontier as queue and add it to the explored set  \\end{flushleft}", 
-        "\\begin{flushleft} 4. find all child nodes and add them to the frontier \\newline except repetitive nodes that are in the explored or frontier sets \\newline \\end{flushleft}",
-        "\\begin{flushleft} 5. check if new nodes include the target node:  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
+        # self.wait(0.5)
+        # explanation = Tex("\\begin{flushleft}Steps: \\end{flushleft}",
+        # "\\begin{flushleft} 1. add root to frontier  \\end{flushleft} ",
+        # "\\begin{flushleft} 2. if frontier is empty there is no answer for this graph\\end{flushleft} ",
+        # "\\begin{flushleft} 3. pop out from frontier as queue and add it to the explored set  \\end{flushleft}", 
+        # "\\begin{flushleft} 4. find all child nodes and add them to the frontier \\newline except repetitive nodes that are in the explored or frontier sets \\newline \\end{flushleft}",
+        # "\\begin{flushleft} 5. check if new nodes include the target node:  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
     
     
-        explanation.scale(0.75)
-        explanation.to_corner(UL)
-        rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} True}: \\newline \\space return the path \\newline 4.2. else repeat steps 2 to 5\\end{flushleft}")
-        rules.scale(0.75)
-        rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.7)
-        brace = Brace(rules,direction=LEFT,buff=0.1)
-        times = [0.7,3,4,4,5.5,2]
-        finished_time_delay = [0,1.5,1.5,1.5,3,1.5]
-        for i in range(len(explanation)):
-            self.play(Write(explanation[i],run_time=times[i]))
-            self.wait(finished_time_delay[i])
-        self.wait(0.5)
-        self.play(Write(brace),Write(rules,run_time=3))
-        self.wait(3)
-        all_group = VGroup(brace,explanation,rules)
-        self.play(FadeOut(all_group))
-        example_header_tex = Tex("let's see an example of BFS graph search","with goal test on node creation")
-        example_header_tex[0].move_to([0,0,0])
-        example_header_tex[1].next_to(example_header_tex[0],DOWN)
+        # explanation.scale(0.75)
+        # explanation.to_corner(UL)
+        # rules = Tex("\\begin{flushleft} 4.1. if {\\color{red} True}: \\newline \\space return the path \\newline 4.2. else repeat steps 2 to 5\\end{flushleft}")
+        # rules.scale(0.75)
+        # rules.next_to(explanation[len(explanation)-1].get_right(),buff=0.7)
+        # brace = Brace(rules,direction=LEFT,buff=0.1)
+        # times = [0.7,3,4,4,5.5,2]
+        # finished_time_delay = [0,1.5,1.5,1.5,3,1.5]
+        # for i in range(len(explanation)):
+        #     self.play(Write(explanation[i],run_time=times[i]))
+        #     self.wait(finished_time_delay[i])
+        # self.wait(0.5)
+        # self.play(Write(brace),Write(rules,run_time=3))
+        # self.wait(3)
+        # all_group = VGroup(brace,explanation,rules)
+        # self.play(FadeOut(all_group))
+        example_header_tex = Tex("let's see an example of A* search")
+        example_header_tex.move_to([0,0,0])
         self.play(Write(example_header_tex))
-        self.wait(1)
+        self.wait(0.7)
         return example_header_tex
 
     def print_node_cost(self,node,cost,direction=DOWN):
@@ -151,9 +161,7 @@ class A_star_graph_search(MovingCameraScene):
 
     def construct(self):
 
-        # opening = self.start_up_actions()
-
-        
+        opening = self.start_up_actions()
 
         # path = input("enter path : ")
         path = "C:\Danial\Projects\Danial\AI teaching assistance stuff\Artificial-Intelligence-Visualization\with edge input.txt"
@@ -164,12 +172,12 @@ class A_star_graph_search(MovingCameraScene):
         sample_graph = graph.show_complete_graph(self,STATIC_GRAPH_RIGHT_X_AREA,STATIC_GRAPH_LEFT_X_AREA)
         
 
-        self.add(sample_graph)
-        table = self.make_table(sample_graph,graph.nodes)
-        self.wait(3)
 
-        tt = Circle()
-        self.sample_graph_animation(tt,sample_graph,table)
+        table = self.make_table(sample_graph,graph.nodes)
+
+        
+        self.sample_graph_animation(opening,sample_graph,table)
+        self.wait(0.5)
         graph.make_nodes_connected_bi_directional()
 
 
@@ -181,6 +189,7 @@ class A_star_graph_search(MovingCameraScene):
         frontier = []
 
         new_graph = GraphSystem.Graph(scale)
+        new_graph.has_cost = True
         for i in range(len(graph.branching_factors)):
             new_graph.branching_factors.append(0)
         root = copy.deepcopy(graph.root)
@@ -220,11 +229,11 @@ class A_star_graph_search(MovingCameraScene):
         for i in all_nodes:
             i.calculated_cost = 0
         # Start search
-        # new_graph.graph_cleaner()
+        new_graph.graph_cleaner()
         clone_graph = copy.deepcopy(new_graph)
         draw_root = clone_graph.root.graphics
         LEFT_X_AREA = LEFT_SCREEN_BOUND+1 
-        RIGHT_X_AREA = sample_graph.get_center()[0] - (sample_graph.get_width() +  + 0.5)
+        RIGHT_X_AREA = sample_graph.get_center()[0] - (sample_graph.get_width()/2+1.5)
 
 
         
@@ -261,20 +270,26 @@ class A_star_graph_search(MovingCameraScene):
                 way.reverse()
                 for j in way:
                     circle = j.visual_shape.copy()
-                    circle.set_stroke(width= circle.get_stroke_width()*1.8,color = GREEN_C)
+                    circle.set_stroke(width= circle.get_stroke_width()*1.8,color = DARK_BLUE)
                     circle.shift([0,0,1])
                     if j.arrow is not None:
                         arrow = j.arrow
-                        self.play(arrow.animate.set_color(GREEN_D))
+                        self.play(arrow.animate.set_color(DARK_BLUE))
                     self.play(ShowCreation(circle))
                     self.wait(0.5)
                 check = False
                 break
             if clone_graph.map.__contains__(expand_node):
                 for i in clone_graph.map[expand_node]:
-                    if expand_node.visual_calculated_cost is not None:
-                        self.remove(expand_node.visual_calculated_cost)
-                        expand_node.visual_calculated_cost = None
+                    display_cost_tex = clone_graph.add_edge_visual_tex(expand_node,i)
+                    target_point = display_cost_tex.get_center()
+                    main_graph_display_tex = graph.visual_edges[graph.nodes[expand_node.name],graph.nodes[i.name]]
+                    start_point = main_graph_display_tex.get_center()
+
+                    display_cost_tex.move_to(start_point)
+                    clone_graph.visual_edges[expand_node,i] = display_cost_tex
+                    cost_display_animation = display_cost_tex.animate.move_to(target_point)
+
                     frontier.append(i)
                     draw_root = i.graphics
                     arrow = None
@@ -282,9 +297,30 @@ class A_star_graph_search(MovingCameraScene):
                         pos = clone_graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
                         self.play(draw_root.animate.move_to(pos))
                         draw_root.set_color(BLUE_A)
+                        
+                        # cost placement
+                        display_cost_tex = clone_graph.set_edge_visual_tex(expand_node,i,expand_node.graphics.get_center(),pos,str(clone_graph.edges[expand_node,i]))
+                        target_point = display_cost_tex.get_center()
+                        main_graph_display_tex = graph.visual_edges[graph.nodes[expand_node.name],graph.nodes[i.name]]
+                        start_point = main_graph_display_tex.get_center()
+                        display_cost_tex.move_to(start_point)
+                        clone_graph.visual_edges[expand_node,i] = display_cost_tex
+                        cost_display_animation = display_cost_tex.animate.move_to(target_point)
+
                         arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()*NODES_SCALE/2,color=YELLOW)
+                        
+                        
+                        if expand_node.visual_calculated_cost is not None:
+                            self.play(FadeOut(expand_node.visual_calculated_cost),cost_display_animation,Write(arrow),draw_root.animate.scale(NODES_SCALE))
+                            expand_node.visual_calculated_cost = None
+                        else:
+                            self.play(cost_display_animation,Write(arrow),draw_root.animate.scale(NODES_SCALE))
+                        
+                        
+
                         i.seen = True
-                        self.play(Write(arrow),draw_root.animate.scale(NODES_SCALE))
+
+
                     else:
                         arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()/2,color=YELLOW)
                         self.play(Write(arrow))
@@ -293,13 +329,67 @@ class A_star_graph_search(MovingCameraScene):
                     i.set_dad(expand_node,arrow)
                     for x,y in clone_graph.edges:
                         if x.name == expand_node.name and y.name == i.name:
-                           i.set_calculated_cost(expand_node.calculated_cost+clone_graph.edges[x,y])
-                           i.visual_calculated_cost = Tex("" + str(i.calculated_cost) + " + " + str(i.H) +" = "+str(i.calculated_cost+i.H))
-                           i.visual_calculated_cost.set_width(i.visual_shape.get_width())
+                            i.set_calculated_cost(expand_node.calculated_cost+clone_graph.edges[x,y])
+                            calc = ""
+                            animates = VGroup()
+                            covers_animation = []
+                            temp = i
                            
-                           i.visual_calculated_cost.next_to(i.visual_shape,DOWN)
-                           self.play(Write(i.visual_calculated_cost))
-                           break
+                            animates.add(temp.visual_H)
+                            width = float(np.abs(temp.visual_H.get_center() - temp.visual_H_name.get_center())[0] + 0.6)
+                            height = float(np.abs(temp.visual_H.get_center() - temp.visual_H_name.get_center())[1] + 0.5)
+                            rect = RoundedRectangle(corner_radius=0.7)
+                            rect.set_height(height)
+                            rect.stretch_to_fit_width(width)
+                            rect.set_color(GREEN)
+                            rect_data = VGroup(temp.visual_H,temp.visual_H_name)
+                            
+            
+                            
+                            # rect.set_height(200)
+                            rect.move_to(rect_data.get_center())
+                            covers_animation.append(ShowCreation(rect))
+
+                            cover_fade_animations = []
+                            cover_fade_animations.append(FadeOut(rect))
+
+                            # width = (clone_graph.visual_edges[temp.dad,temp]).get_width()*4
+                            while(temp.dad != None):
+                                tex = clone_graph.visual_edges[temp.dad,temp]
+                                tex_str = str(clone_graph.edges[temp.dad,temp])
+                                if temp.dad.dad is not None:
+                                   calc += tex_str + "+"
+                                else:
+                                   calc += tex_str
+                                animates.add(tex.copy())
+                                circle = Circle()
+                                # circle.set_width(width)
+                                circle.scale(scale/3)
+                                circle.move_to(tex.get_center())
+                                covers_animation.append(ShowCreation(circle))
+                                cover_fade_animations.append(FadeOut(circle))
+                                temp = temp.dad
+                            
+                            
+                            visual_calculated = Tex("Cost : "+calc + "+" + str(i.H) +" = "+str(i.calculated_cost+i.H))
+                            # visual_calculated.to_corner(DL)
+                            visual_calculated.move_to([(RIGHT_X_AREA+LEFT_X_AREA)/2,DOWN_SCREEN_BOUND,0])
+
+                            final_result = Tex(str(i.calculated_cost+i.H))
+                            i.visual_calculated_cost = final_result
+                            # i.visual_calculated_cost.set_width(i.visual_shape.get_width())
+                            i.visual_calculated_cost.next_to(i.visual_shape,RIGHT,buff=0.05)
+                            # i.visual_calculated_cost.set_width(i.visual_shape.get_width()/2)
+                            i.visual_calculated_cost.scale(NODES_SCALE/3)
+
+                            self.play(*covers_animation)
+                            self.wait(0.5)
+                            self.play(Transform(animates,visual_calculated))
+                            self.wait(0.8)
+                            self.play(Transform(visual_calculated,i.visual_calculated_cost),FadeOut(animates),*cover_fade_animations)
+                            self.remove(visual_calculated)
+                            self.add(i.visual_calculated_cost)
+                            break
                     
 
 
