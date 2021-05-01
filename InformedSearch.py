@@ -55,7 +55,7 @@ class A_star_graph_search(MovingCameraScene):
         # scene.add(vertical_line,horizantal_line)
 
         Node_header_text = Text("Node",size=TABLE_TEXT_SIZE)
-        cost_header_text = Text("Hiuristic",size=TABLE_TEXT_SIZE)
+        cost_header_text = Text("Heuristic",size=TABLE_TEXT_SIZE)
         x1 = horizantal_line.get_bottom()
         x2 = horizantal_line.get_bottom()
         x1[0] = (x1[0] + horizantal_line.get_right()[0]) / 2
@@ -83,7 +83,7 @@ class A_star_graph_search(MovingCameraScene):
             huristic.move_to(x1)
             # scene.add(node_name,huristic)
             group.add(node_name,huristic)
-        table_text = Tex("Huristic Table")
+        table_text = Tex("Heuristic Table")
         table_text.next_to(group,UP)
         # scene.add(table_text)
         group.add(table_text)
@@ -148,7 +148,7 @@ class A_star_graph_search(MovingCameraScene):
         # self.wait(3)
         # all_group = VGroup(brace,explanation,rules)
         # self.play(FadeOut(all_group))
-        example_header_tex = Tex("let's see an example of A* search")
+        example_header_tex = Tex("Let's see an example of A* search")
         example_header_tex.move_to([0,0,0])
         self.play(Write(example_header_tex))
         self.wait(0.7)
