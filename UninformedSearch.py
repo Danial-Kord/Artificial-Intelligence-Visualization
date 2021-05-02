@@ -17,7 +17,7 @@ scale = 0.5
 
 STATIC_GRAPH_LEFT_X_AREA = -4
 STATIC_GRAPH_RIGHT_X_AREA = 4
-NODES_SCALE = 1.5
+NODES_SCALE = 1.4
 
 
 
@@ -258,8 +258,8 @@ class DFS_graph_search(MovingCameraScene):
 
     def construct(self):
 
-        opening = self.start_up_actions()
-
+        #opening = self.start_up_actions()
+        opening = Circle()
         
 
         # path = input("enter path : ")
@@ -275,8 +275,8 @@ class DFS_graph_search(MovingCameraScene):
         # Start BFS
         frontier_text_pos , explored_text_pos = build_table(self,sample_graph)
 
-        clone_graph = copy.deepcopy(graph)
-        draw_root = clone_graph.root.graphics
+
+
         LEFT_X_AREA = sample_graph.get_width() + sample_graph.get_center()[0] + 0.5
         RIGHT_X_AREA = 5.5
 
@@ -288,6 +288,62 @@ class DFS_graph_search(MovingCameraScene):
         explored_text = []
 
         frontier_index_array = []
+ 
+
+
+
+        graph.make_nodes_connected_bi_directional()
+
+        new_graph = GraphSystem.Graph(scale)
+        new_graph.has_cost = True
+        for i in range(len(graph.branching_factors)):
+            new_graph.branching_factors.append(0)
+        root = copy.deepcopy(graph.root)
+        new_graph.root = root
+        
+        frontier.append(new_graph.root)
+
+        check = True
+        while(check):
+            if len(frontier) == 0:
+                break
+            expand_node = frontier.pop()
+            real_expand_node = graph.nodes[expand_node.name]
+            explored.append(real_expand_node)
+            if graph.map.__contains__(real_expand_node):
+
+                reverse_array = []
+                for i in graph.map[real_expand_node]:
+
+                    if i in explored:
+                        continue
+                    new_node = copy.deepcopy(i)
+                    new_node.depth = 0
+                    
+                    if i.name == "G":
+                        check = False
+                    reverse_array.append(new_node)
+                if len(reverse_array) != 0:
+                    for i in range(len(reverse_array)):
+                        for j in range(i,len(reverse_array)):
+                            if reverse_array[i].name < reverse_array[j].name:
+                                reverse_array[i],reverse_array[j] = reverse_array[j],reverse_array[i]
+                    for i in reverse_array:
+                        frontier.append(i)
+                    for i in reverse_array.__reversed__():
+                        new_graph.insert(i,expand_node)
+                
+
+
+        new_graph.graph_cleaner()
+
+        
+        frontier.clear()
+        explored.clear()
+        clone_graph = copy.deepcopy(new_graph)
+
+
+        draw_root = clone_graph.root.graphics
         self.play(Write(frontier_table_text_add(frontier_text,clone_graph.root.name,frontier_text_pos))
         ,draw_root.animate.move_to(clone_graph.get_node_relative_pos(clone_graph.root,RIGHT_X_AREA,LEFT_X_AREA)))
         draw_root.set_color(BLUE_A)
@@ -311,20 +367,50 @@ class DFS_graph_search(MovingCameraScene):
                 reverse_array_index = []
                 temp = len(frontier_index_array)-1
                 for i in clone_graph.map[expand_node]:
-                    if i in explored or i in frontier:
+                    trasformation_node = None
+                    if i in explored:
                         continue
-                    temp+=1
-                    reverse_array.append(i)
-                    reverse_array_index.append(temp)
-                    draw_root = i.graphics
+                    else:
+                        for j in range(len(frontier)):
+                            if frontier[j].name == i.name:
+                                trasformation_node = frontier[j]
+                                new_frontier_index_array = copy.deepcopy(frontier_index_array)
+                                for k in range(len(new_frontier_index_array)):
+                                    if frontier_index_array[k] == j:
+                                        new_index = frontier_index_array.pop(k)
+                                        reverse_array_index.append(new_index)
+                                        reverse_array.append(i)
+                                        frontier.pop(j)
+                                        break
+                                break
+
+
+
+                    if trasformation_node is None:
+                        temp+=1
+                        reverse_array_index.append(temp)
+                        reverse_array.append(i)
+                        draw_root = i.graphics
+                    else:
+                        draw_root = trasformation_node.graphics
                     pos = clone_graph.get_node_relative_pos(i,RIGHT_X_AREA,LEFT_X_AREA)
-                    self.play(Write(frontier_table_text_add(frontier_text,i.name,frontier_text_pos))
-                        ,draw_root.animate.move_to(pos))
-                    draw_root.set_color(BLUE_A)
-                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=draw_root.get_width()*NODES_SCALE/2,color=YELLOW)
-                    i.set_dad(expand_node,arrow)
+
+                    if trasformation_node is None:
+                        self.play(Write(frontier_table_text_add(frontier_text,i.name,frontier_text_pos))
+                            ,draw_root.animate.move_to(pos))
+                    else:
+                        i.graphics.move_to(pos)
+                        i.graphics.scale(NODES_SCALE)
+                        self.play(draw_root.animate.move_to(pos),FadeOut(trasformation_node.arrow))
                     
-                    self.play(Write(arrow),draw_root.animate.scale(NODES_SCALE))
+                    draw_root.set_color(BLUE_A)
+                    arrow = Arrow(expand_node.graphics.get_center(),draw_root.get_center(),stroke_width=NODES_SCALE,buff=expand_node.graphics.get_width()/2,color=YELLOW)
+                    i.set_dad(expand_node,arrow)
+                    if trasformation_node is None:
+                        self.play(Write(arrow),draw_root.animate.scale(NODES_SCALE))
+                    else:
+                        self.play(Write(arrow))
+
                     self.wait(1)
                     if i.name == "G":
                         temp = i
@@ -360,7 +446,7 @@ class DFS_graph_search(MovingCameraScene):
 #--------------------------------------------------------- IDS ------------------------------------------------------------------
 
 
-
+#TODO fix(problem as same as DFS)
 class IDS_graph_search(MovingCameraScene):
 
 

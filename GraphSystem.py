@@ -9,8 +9,8 @@ from numpy import cos
 RANDOM_POSITINAL_ENABLE = True
 POSITIONAL_RANDOMNESS = 0.1
 RANDOM_PRECESION = 1000
-y_bias = 3.55
-
+y_bias = 0.4
+top_y_pos = 3.4
 
 class Node:
 
@@ -242,7 +242,6 @@ class Graph:
         #     except:
         #         print("cleaning")
         map = copy.deepcopy(self.map)
-        index = 1
         for i in map:
             for j in map[i]:
                 check = True
@@ -261,12 +260,13 @@ class Graph:
                     # node.visual_name = j.visual_name
                     self.insert(node,original)
                     print("  " + i.name+"   " + original.name)
-                    for x,z in self.edges:
-                        if x.name == node.name and z.name == original.name:
-                            print("we did it" + "  " + original.name+"   " + node.name)
-                            self.add_edge_cost(original,node,self.edges[x,z])
-                            self.visual_edges[original,node] = self.visual_edges[node,original]
-                            break
+                    if self.has_cost:
+                        for x,z in self.edges:
+                            if x.name == node.name and z.name == original.name:
+                                print("we did it" + "  " + original.name+"   " + node.name)
+                                self.add_edge_cost(original,node,self.edges[x,z])
+                                self.visual_edges[original,node] = self.visual_edges[node,original]
+                                break
         self.graph_cleaner()
     
     def graph_cleaner(self):
@@ -296,7 +296,10 @@ class Graph:
          return self.get_node_relative_pos2(self.branching_factors[node.depth],node.order,node.depth,RIGHT_X_AREA,LEFT_X_AREA)
 
     def get_node_relative_pos2(self,branching_factor,order,depth,RIGHT_X_AREA,LEFT_X_AREA):
-        current_y_point = float(y_bias - (self.scale*2 + self.scale) * depth)
+        if depth != 0:
+            current_y_point = float(top_y_pos - ((self.scale*2 + y_bias) * depth))
+        else:
+            current_y_point = top_y_pos
 
         current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
         if branching_factor > 1:

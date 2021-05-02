@@ -1,4 +1,7 @@
-2 2
-A B C D G
-A B C D
-D G
+4 2
+A B C D E F G H I
+A B C F
+B D E
+C E H
+D I
+E G
