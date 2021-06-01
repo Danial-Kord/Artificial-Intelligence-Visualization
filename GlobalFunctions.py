@@ -10,7 +10,6 @@ def build_table(scene,sample_graph):
     left_pos = [sample_graph.get_left()[0],top_pos[1]-1,0]
     vertical_line = Line(top_pos,bottom_pos)
     horizantal_line = Line(left_pos,[sample_graph.get_right()[0],top_pos[1]-1,0])
-    scene.play(Write(vertical_line),Write(horizantal_line))
     explored_header = Text("Explored",size=0.5)
     frontier_header = Text("Frontier",size=0.5)
     x1 = horizantal_line.get_bottom()
@@ -21,7 +20,7 @@ def build_table(scene,sample_graph):
     x2[1] += between_Text_gaps
     explored_header.move_to(x2)
     frontier_header.move_to(x1)
-    scene.play(Write(explored_header),Write(frontier_header))
+    scene.play(Write(vertical_line),Write(horizantal_line),Write(explored_header),Write(frontier_header))
     x1[1] -= between_Text_gaps*2
     x2[1] -= between_Text_gaps*2
     return x1,x2

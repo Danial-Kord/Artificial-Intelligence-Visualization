@@ -228,7 +228,7 @@ class DFS_graph_search(MovingCameraScene):
         "\\begin{flushleft} 1. add root to frontier\\end{flushleft} ",
         "\\begin{flushleft} 2. if frontier is empty there is no answer for this graph\\end{flushleft} ",
         "\\begin{flushleft} 3. pop out deepest node from frontier and add it to the explored set  \\end{flushleft}", 
-        "\\begin{flushleft} 4. find all child nodes from selected node and add them to the frontier \\newline except repetitive nodes that are in the explored or frontier sets \\newline \\end{flushleft}",
+        "\\begin{flushleft} 4. find all child nodes from selected node and add them to the frontier \\newline if they are not in the explored set and update node state if it is in frontier set \\newline \\end{flushleft}",
         "\\begin{flushleft} 5. check if new nodes include the target node:  \\end{flushleft}",TexTemplate = TexTemplateLibrary)
     
         explanation.scale(0.75)
@@ -258,8 +258,7 @@ class DFS_graph_search(MovingCameraScene):
 
     def construct(self):
 
-        #opening = self.start_up_actions()
-        opening = Circle()
+        opening = self.start_up_actions()
         
 
         # path = input("enter path : ")

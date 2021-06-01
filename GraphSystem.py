@@ -186,7 +186,7 @@ class Graph:
             # adding nodes
             for i in self.nodes:
                 node = self.nodes[i]
-                current_y_point = y_bias - (self.scale*2 + self.scale) * node.depth
+                current_y_point = float(top_y_pos - ((self.scale*2 + y_bias) * node.depth))
 
                 # if index == 0:
                 #     current_y_point = top - (self.scale*2 + self.scale) * node.depth
@@ -296,10 +296,8 @@ class Graph:
          return self.get_node_relative_pos2(self.branching_factors[node.depth],node.order,node.depth,RIGHT_X_AREA,LEFT_X_AREA)
 
     def get_node_relative_pos2(self,branching_factor,order,depth,RIGHT_X_AREA,LEFT_X_AREA):
-        if depth != 0:
-            current_y_point = float(top_y_pos - ((self.scale*2 + y_bias) * depth))
-        else:
-            current_y_point = top_y_pos
+
+        current_y_point = float(top_y_pos - ((self.scale*2 + y_bias) * depth))
 
         current_x_point = (RIGHT_X_AREA + LEFT_X_AREA)/2
         if branching_factor > 1:

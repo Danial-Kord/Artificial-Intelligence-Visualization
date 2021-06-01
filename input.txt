@@ -4,4 +4,4 @@ A B C F
 B D E
 C E H
 D I
-E G
+E I G
