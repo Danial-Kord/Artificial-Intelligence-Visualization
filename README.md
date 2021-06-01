@@ -1,6 +1,6 @@
 # Artificial-Intelligence-Visualization
-A visual representation of How Artificial Intelligence Algorithms works while doing an example step by step!
-great Thanks to [Matin Tavakoli](https://github.com/MatinTavakoli) & [Hossein Zaredar](https://github.com/HosseinZaredar) for guiding me with this.
+A visual representation of How Artificial Intelligence Algorithms works while doing an example step by step!<br>
+Made by me and a great Thanks to [Matin Tavakoli](https://github.com/MatinTavakoli) & [Hossein Zaredar](https://github.com/HosseinZaredar) for guiding me with this.
 
 ## Animations:
 1. [Breadth first search(BFS)](https://www.youtube.com/watch?v=Y7uwvMOA6-s)
@@ -12,4 +12,4 @@ great Thanks to [Matin Tavakoli](https://github.com/MatinTavakoli) & [Hossein Za
 
 
 ## Resources:
-used [manim community](https://github.com/ManimCommunity/manim) as a core for rendering
+used [manim community](https://github.com/ManimCommunity/manim) as a core for rendering.
